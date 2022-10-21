@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QFrame, QGridLayout, QSizePolicy, QWidget
+from PyQt5.QtWidgets import QFrame, QGridLayout, QSizePolicy, QWidget, QLabel
+from ft.styles import cell_style
 
 
 class Board(QFrame):
@@ -18,11 +19,13 @@ class Board(QFrame):
     def draw_squares(self):
         for row, rank in enumerate('987654321'):
             for col, file in enumerate('abcdefghi'):
-                square = QWidget()
+                square = QLabel()
                 square.setObjectName(file + rank)
                 square.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                if row % 2 == col % 2:
-                    square.setStyleSheet('background-color: #cfdbdb')
-                else:
-                    square.setStyleSheet('background-color: #51b0cc')
+                square.setStyleSheet(cell_style)
+                square.setFrameStyle(QFrame.Box | QFrame.Sunken)
+                # if row % 2 == col % 2:
+                #     square.setStyleSheet('background-color: #cfdbdb')
+                # else:
+                #     square.setStyleSheet('background-color: #51b0cc')
                 self.layout.addWidget(square, row, col)

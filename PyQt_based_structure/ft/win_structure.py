@@ -3,12 +3,14 @@ from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
 from PyQt5.QtGui import QPixmap
 from ft.board import Board
 from ft.fun import hpad_this
+from ft.styles import dialog_style, title_style_2
 import paths as pt
 
 class GameWindow(QWidget):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.setMinimumSize(800, 600)
         self.init_gui()
 
     def init_gui(self) -> None:
@@ -23,12 +25,17 @@ class GameWindow(QWidget):
 
     def player_1_panel(self) -> QGroupBox:
         panel: QGroupBox = QGroupBox(title='Player 1')
+        panel.setStyleSheet(title_style_2)
         
         # Player 1 status
         self.p1_HP: QLabel = QLabel(text='0')
+        self.p1_HP.setStyleSheet(dialog_style)
         self.p1_VP: QLabel = QLabel(text='0')
+        self.p1_VP.setStyleSheet(dialog_style)
         self.p1_LP: QLabel = QLabel(text='0')
+        self.p1_LP.setStyleSheet(dialog_style)
         self.p1_CP: QLabel = QLabel(text='0')
+        self.p1_CP.setStyleSheet(dialog_style)
         
         # Icons
         im_heart: QPixmap = QPixmap(pt.im_heart)
@@ -96,12 +103,17 @@ class GameWindow(QWidget):
 
     def player_2_panel(self) -> QGroupBox:
         panel: QGroupBox = QGroupBox(title='Player 2')
+        panel.setStyleSheet(title_style_2)
         
         # Player 1 status
         self.p2_HP: QLabel = QLabel(text='0')
+        self.p2_HP.setStyleSheet(dialog_style)
         self.p2_VP: QLabel = QLabel(text='0')
+        self.p2_VP.setStyleSheet(dialog_style)
         self.p2_LP: QLabel = QLabel(text='0')
+        self.p2_LP.setStyleSheet(dialog_style)
         self.p2_CP: QLabel = QLabel(text='0')
+        self.p2_CP.setStyleSheet(dialog_style)
         
         # Icons
         im_heart: QPixmap = QPixmap(pt.im_heart)
