@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QApplication
+#IMPORT MODULES
+from FrontEnd.win_structure import GameWindow #Cambiar porque se une FE con BE
 
-from ft.win_structure import GameWindow
+#IMPORT PYQT5
+from PyQt5.QtWidgets import QApplication
 
 
 class Rilatria(QApplication):

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QFrame, QGridLayout, QSizePolicy, QWidget, QLabel
-from ft.styles import cell_style
+from FrontEnd.styles import cell_style
 
 
 class Board(QFrame):
@@ -29,3 +29,20 @@ class Board(QFrame):
                 # else:
                 #     square.setStyleSheet('background-color: #51b0cc')
                 self.layout.addWidget(square, row, col)
+
+
+
+if __name__ == "__main__":
+    import sys 
+    from PyQt5.QtWidgets import QApplication
+
+    def hook(type, value, traceback):
+        print(type)
+        print(traceback)
+    sys.__excepthook__ = hook
+
+    app = QApplication(sys.argv)
+    board: Board = Board()
+    board.show()
+
+    sys.exit(app.exec())

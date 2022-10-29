@@ -1,4 +1,4 @@
-from app import Rilatria
+from FrontEnd.app import Rilatria
 import sys
 
 if __name__ == '__main__':

@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
     QLabel
 from PyQt5.QtGui import QPixmap
-from ft.board import Board
-from ft.fun import hpad_this
-from ft.styles import dialog_style, title_style_2
-import paths as pt
+from FrontEnd.board import Board
+from FrontEnd.fun import hpad_this
+from FrontEnd.styles import dialog_style, title_style_2
+import BackEnd.paths as pt
 
 class GameWindow(QWidget):
 
