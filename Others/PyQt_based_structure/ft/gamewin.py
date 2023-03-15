@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
-    QLabel
+    QLabel, QFrame
 from PyQt5.QtGui import QPixmap
 from ft.board import Board
 from ft.fun import hpad_this
-from ft.styles import dialog_style, title_style_2
+from ft.styles import dialog_style, title_style_2, store_cell
 import paths as pt
 
 class GameWindow(QWidget):
@@ -106,10 +106,113 @@ class GameWindow(QWidget):
         return self.p1anel
 
     def middle_panel(self) -> QVBoxLayout:
-        
+        # Upper section: store
+        store_lay = self.store_panel()
+
+        # Middle section: board
         self.board: Board = Board()
-        lay_b = hpad_this(self.board)
+        
+        # Bottom section: cards
+        cards_lay = self.cards_panel()
+
+        # Vertical alignment
+        lay_b = hpad_this(
+            store_lay,
+            self.board,
+            cards_lay)
+        
         return lay_b
+
+    def store_panel(self) -> QGroupBox:
+        store: QGroupBox = QGroupBox(title='Store')
+        store.setStyleSheet(title_style_2)
+        store.setMaximumHeight(120)
+        
+        # Icons
+        im_pawn: QPixmap = QPixmap(pt.im_pawn)
+        pawn: QLabel = QLabel()
+        pawn.setPixmap(im_pawn)
+        pawn.setFixedSize(70, 70)
+        pawn.setScaledContents(True)
+
+        im_horse: QPixmap = QPixmap(pt.im_horse)
+        horse: QLabel = QLabel()
+        horse.setPixmap(im_horse)
+        horse.setFixedSize(70, 70)
+        horse.setScaledContents(True)
+
+        im_bishop: QPixmap = QPixmap(pt.im_bishop)
+        bishop: QLabel = QLabel()
+        bishop.setPixmap(im_bishop)
+        bishop.setFixedSize(70, 70)
+        bishop.setScaledContents(True)
+
+        im_rook: QPixmap = QPixmap(pt.im_rook)
+        rook: QLabel = QLabel()
+        rook.setPixmap(im_rook)
+        rook.setFixedSize(70, 70)
+        rook.setScaledContents(True)
+
+        im_joker: QPixmap = QPixmap(pt.im_joker)
+        joker: QLabel = QLabel()
+        joker.setPixmap(im_joker)
+        joker.setFixedSize(70, 70)
+        joker.setScaledContents(True)
+
+        # Styles
+        pawn.setStyleSheet(store_cell)
+        horse.setStyleSheet(store_cell)
+        bishop.setStyleSheet(store_cell)
+        rook.setStyleSheet(store_cell)
+        joker.setStyleSheet(store_cell)
+
+        # lower layouts
+
+        # total layout
+        int_lay = hpad_this(
+            (pawn, horse, bishop, rook, joker)
+        )
+
+        store.setLayout(int_lay)
+        return store
+
+    def cards_panel(self) -> QLabel|QGroupBox:
+
+        # Cards
+        self.card1: QLabel = QLabel()
+        self.card1.setFixedSize(60, 80)
+        self.card1.setScaledContents(True)
+
+        self.card2: QLabel = QLabel()
+        self.card2.setFixedSize(60, 80)
+        self.card2.setScaledContents(True)
+
+        self.card3: QLabel = QLabel()
+        self.card3.setFixedSize(60, 80)
+        self.card3.setScaledContents(True)
+
+        # Delete
+        im_try = QPixmap(pt.im_try)
+        self.card1.setPixmap(im_try)
+        self.card2.setPixmap(im_try)
+        self.card3.setPixmap(im_try)
+
+        # Layouts and presentation
+        internal = QHBoxLayout()
+        internal.addStretch()
+        internal.addWidget(self.card1)
+        internal.addSpacing(6)
+        internal.addStretch()
+        internal.addWidget(self.card2)
+        internal.addSpacing(6)
+        internal.addStretch()
+        internal.addWidget(self.card3)
+        internal.addStretch()
+        container = QFrame()
+        container.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
+        container.setLineWidth(1)
+        container.setLayout(internal)
+        return container
 
     def player_2_panel(self) -> QGroupBox:
         self.p2anel: QGroupBox = QGroupBox(title='Player 2')

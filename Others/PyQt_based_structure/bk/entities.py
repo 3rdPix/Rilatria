@@ -4,10 +4,10 @@ from random import randint as rint
 
 class Player(QObject):
 
-    def __init__(self, stats: tuple, sgtool_death: pyqtSignal) -> None:
+    def __init__(self, stats: tuple, tl_death: pyqtSignal) -> None:
         super().__init__()
-        self._health, self._honor, self._luck, self._coins = stats
-        self.sg_death: pyqtSignal = sgtool_death
+        self.name, self._health, self._honor, self._luck, self._coins = stats
+        self.sg_death: pyqtSignal = tl_death
 
     def get_health(self): return self._health
     def set_health(self, new_val):
@@ -50,3 +50,29 @@ class Player(QObject):
                 if self.luck == 10: self.health += 1
             else: self.health -= 1
         if self.coins > 5: self.honor -= 1
+
+    def is_alive(self) -> bool:
+        if self.health < 1: return False
+        return True
+
+
+class Board(QObject):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(*kwargs)
+        self.on_board: list = list()
+
+    def is_empty(self) -> bool:
+        pass
+
+
+class Piece(QObject):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+
+class Deck(QObject):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)

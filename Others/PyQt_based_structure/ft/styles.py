@@ -2,6 +2,10 @@ cell_style: str = """\
 QWidget:hover {\
     background-color: #b3ffff;\
     }"""
+store_cell: str = """\
+QWidget:hover {\
+    background-color: orange;\
+    }"""
 dialog_style: str = "QLabel {\
     background-color: white;\
     color: black;\
