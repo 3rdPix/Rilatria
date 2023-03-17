@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
     QLabel, QFrame, QGridLayout
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 from ft.boxes import StatSet, ItemSet
-from ft.board import Board
+from ft.board import Board, Board2
 from ft.fun import hpad_this
 from ft.styles import dialog_style, title_style_2, store_cell
 import paths as pt
@@ -11,49 +12,32 @@ class GameWindow(QWidget):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.setMinimumSize(800, 600)
         self.init_gui((1,))
         self.stylize_gui()
 
     def init_gui(self, data: tuple) -> None:
+        self.background: QLabel = QLabel(parent=self)
+        self.setMinimumSize(1050, 690)
+        p2anel = self.player_2_panel()
+        board_panel = self.board_panel()
+        p1anel = self.player_1_panel()
+        cards_panel = self.cards_panel()
+        store_panel = self.store_panel()
+
         
-        self.background: QLabel = QLabel()
-        
 
-        layer1_opponent = self.player_2_panel()
-        layer2_board = self.board_panel()
-        layer3_playerpanel = self.player_1_panel()
-        # layer3_cardspanel = self.cards_panel()
-        layer4_storepanel = self.store_panel()
 
-        v_lay = QVBoxLayout()
+        grid = QGridLayout()
+        grid.addWidget(p1anel, 1, 1, 8, 1)
+        grid.addWidget(board_panel, 1, 2, 6, 6)
+        grid.addWidget(p2anel, 1, 8, 8, 1)
+        grid.addWidget(store_panel, 7, 2, 2, 4)
+        grid.addWidget(cards_panel, 7, 6, 2, 2)
 
-        layer1 = QHBoxLayout()
-        layer1.addStretch(3)
-        layer1.addWidget(layer1_opponent, 1)
-        layer1.addStretch(3)
-        v_lay.addLayout(layer1)
+        self.background.setLayout(grid)
+        self.background.setFixedSize(self.size())
 
-        layer2 = QHBoxLayout()
-        layer2.addStretch(1)
-        layer2.addWidget(layer2_board, 0)
-        layer2.addStretch(1)
-        v_lay.addLayout(layer2)
 
-        layer3 = QHBoxLayout()
-        layer3.addStretch(2)
-        layer3.addWidget(layer3_playerpanel, 1)
-        # layer3.addWidget(layer3_cardspanel, 1)
-        layer3.addStretch(2)
-        v_lay.addLayout(layer3)
-
-        layer4 = QHBoxLayout()
-        layer4.addStretch()
-        layer4.addWidget(layer4_storepanel)
-        layer4.addStretch()
-        v_lay.addLayout(layer4)
-
-        self.setLayout(v_lay)
 
         self.show()
 
@@ -74,12 +58,15 @@ class GameWindow(QWidget):
         # Cards
         self.card1: QLabel = QLabel()
         self.card1.setScaledContents(True)
+        self.card1.setFixedSize(81, 121)
 
         self.card2: QLabel = QLabel()
         self.card2.setScaledContents(True)
+        self.card2.setFixedSize(81, 121)
 
         self.card3: QLabel = QLabel()
         self.card3.setScaledContents(True)
+        self.card3.setFixedSize(81, 121)
 
         # Delete
         im_try = QPixmap(pt.im_try)
@@ -88,11 +75,20 @@ class GameWindow(QWidget):
         self.card3.setPixmap(im_try)
 
         # Layouts and presentation
-        internal = QHBoxLayout()
-        internal.addWidget(self.card1)
-        internal.addWidget(self.card2)
-        internal.addWidget(self.card3)
-        cards_panel.setLayout(internal)
+        int_lay = QHBoxLayout()
+        int_lay.addStretch()
+        int_lay.addWidget(self.card1)
+        int_lay.addStretch()
+        int_lay.addWidget(self.card2)
+        int_lay.addStretch()
+        int_lay.addWidget(self.card3)
+        int_lay.addStretch()
+
+        ext_lay = QVBoxLayout()
+        ext_lay.addStretch()
+        ext_lay.addLayout(int_lay)
+        ext_lay.addStretch()
+        cards_panel.setLayout(ext_lay)
         return cards_panel
 
     """
@@ -101,39 +97,61 @@ class GameWindow(QWidget):
     
     def board_panel(self) -> QGroupBox:
         box = QGroupBox(title='Battle Field')
-        grid = QGridLayout()
         self.board = Board()
-        grid.addWidget(self.board)
-        box.setLayout(grid)
-        return box  
+        v_box = QVBoxLayout()
+        v_box.addStretch()
+
+        h_box = QHBoxLayout()
+        h_box.addStretch()
+        h_box.addWidget(self.board)
+        h_box.addStretch()
+        v_box.addLayout(h_box)
+
+        v_box.addStretch()
+        
+        box.setLayout(v_box)
+        return box 
 
     def store_panel(self) -> QGroupBox:
         store: QGroupBox = QGroupBox(title='Store')
+        store.setMinimumSize(510, 130)
 
-        pawn = ItemSet(pt.im_pawn, 'Bárbaro', pt.im_item_back,
+        self.pawn = ItemSet(pt.im_pawn, 'Bárbaro', pt.im_item_back,
                        pt.im_item_hover, pt.im_item_click)
-        horse = ItemSet(pt.im_horse, 'Jinete', pt.im_item_back,
+        self.horse = ItemSet(pt.im_horse, 'Jinete', pt.im_item_back,
                         pt.im_item_hover, pt.im_item_click)
-        bishop = ItemSet(pt.im_bishop, 'Lancero', pt.im_item_back,
+        self.bishop = ItemSet(pt.im_bishop, 'Lancero', pt.im_item_back,
                          pt.im_item_hover, pt.im_item_click)
-        rook = ItemSet(pt.im_rook, 'Armatoste', pt.im_item_back,
+        self.rook = ItemSet(pt.im_rook, 'Armatoste', pt.im_item_back,
                        pt.im_item_hover, pt.im_item_click)
-        joker = ItemSet(pt.im_joker, 'Asesino', pt.im_item_back,
+        self.joker = ItemSet(pt.im_joker, 'Asesino', pt.im_item_back,
                         pt.im_item_hover, pt.im_item_click)
 
         # total layout
         int_lay = QHBoxLayout()
-        int_lay.addWidget(pawn)
-        int_lay.addWidget(horse)
-        int_lay.addWidget(bishop)
-        int_lay.addWidget(rook)
-        int_lay.addWidget(joker)
+        int_lay.addStretch()
+        int_lay.addWidget(self.pawn)
+        int_lay.addStretch()
+        int_lay.addWidget(self.horse)
+        int_lay.addStretch()
+        int_lay.addWidget(self.bishop)
+        int_lay.addStretch()
+        int_lay.addWidget(self.rook)
+        int_lay.addStretch()
+        int_lay.addWidget(self.joker)
+        int_lay.addStretch()
 
-        store.setLayout(int_lay)
+        ext_lay = QVBoxLayout()
+        ext_lay.addStretch()
+        ext_lay.addLayout(int_lay)
+        ext_lay.addStretch()
+
+        store.setLayout(ext_lay)
         return store
     
     def player_2_panel(self) -> QGroupBox:
         self.p2anel: QGroupBox = QGroupBox(title='Player 2')
+        self.p2anel.setMaximumWidth(115)
         
         self.p2_HP = StatSet(pt.im_heart, pt.im_stat_frame)
         self.p2_VP = StatSet(pt.im_shield, pt.im_stat_frame)
@@ -141,7 +159,7 @@ class GameWindow(QWidget):
         self.p2_CP = StatSet(pt.im_coin, pt.im_stat_frame)
 
         # Panel layout
-        lay_p2 = QHBoxLayout()
+        lay_p2 = QVBoxLayout()
         lay_p2.addLayout(self.p2_HP)
         lay_p2.addLayout(self.p2_VP)
         lay_p2.addLayout(self.p2_LP)
@@ -152,6 +170,7 @@ class GameWindow(QWidget):
     
     def player_1_panel(self) -> QGroupBox:
         self.p1anel: QGroupBox = QGroupBox(title='Player 1')
+        self.p1anel.setMaximumWidth(115)
         
         self.p1_HP = StatSet(pt.im_heart, pt.im_stat_frame)
         self.p1_VP = StatSet(pt.im_shield, pt.im_stat_frame)
@@ -159,7 +178,7 @@ class GameWindow(QWidget):
         self.p1_CP = StatSet(pt.im_coin, pt.im_stat_frame)
 
         # Panel layout
-        lay_p1 = QHBoxLayout()
+        lay_p1 = QVBoxLayout()
         lay_p1.addLayout(self.p1_HP)
         lay_p1.addLayout(self.p1_VP)
         lay_p1.addLayout(self.p1_LP)
@@ -167,3 +186,7 @@ class GameWindow(QWidget):
 
         self.p1anel.setLayout(lay_p1)
         return self.p1anel
+    
+    def resizeEvent(self, event) -> None:
+        self.background.setFixedSize(self.size())
+        return super().resizeEvent(event)

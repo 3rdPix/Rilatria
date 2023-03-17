@@ -50,11 +50,12 @@ class ItemSet(QLabel):
         self.setPixmap(self.non_hover_back)
         self.setScaledContents(True)
         self.set_content(image_path, name)
+        self.setFixedSize(93, 121)
 
     def set_content(self, image_path: str, name: str) -> None:
         content_lay = QVBoxLayout()
         content_lay.addStretch()
-        
+
         mob_label = QLabel()
         mob_image = QPixmap(image_path)
         mob_label.setPixmap(mob_image)
