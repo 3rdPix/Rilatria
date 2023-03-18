@@ -1,5 +1,6 @@
 from app import Rilatria
 import sys
+import socket
 
 if __name__ == '__main__':
     def hook(type, value, traceback):
@@ -7,5 +8,8 @@ if __name__ == '__main__':
         print(traceback)
     sys.__excepthook__ = hook
 
-    app = Rilatria(sys.argv)
+    port: int = 1714
+    host: str = socket.gethostbyname(socket.gethostname())
+
+    app = Rilatria(sys.argv, host, port)
     sys.exit(app.exec())

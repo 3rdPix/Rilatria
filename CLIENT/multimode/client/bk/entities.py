@@ -1,6 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from random import randint as rint
-from collections import namedtuple
 
 
 class Player(QObject):
@@ -78,6 +77,7 @@ class Card:
     honor: int = 0
     suerte: int = 0
     dinero: int = 0
+
 
 class Deck(QObject):
 

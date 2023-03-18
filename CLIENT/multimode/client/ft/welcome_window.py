@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QVBoxLayout,\
-    QLabel, QPushButton, QFrame, QGridLayout
+    QLabel, QPushButton, QFrame, QGridLayout, QMessageBox
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal
 from ft.fun import hpad_this
@@ -8,7 +8,7 @@ import paths as pt
 
 class WelWin(QWidget):
 
-    sg_play = pyqtSignal(str)
+    ant_request_login = pyqtSignal(str)
 
     def __init__(self) -> None:
         super().__init__()
@@ -72,5 +72,34 @@ class WelWin(QWidget):
         self.play_bt.clicked.connect(self.send_game)
 
     def send_game(self) -> None:
-        self.sg_play.emit(self.username_textbox.text())
-        self.hide()
+        self.ant_request_login.emit(self.username_textbox.text())
+
+    def mostrar_conx_err(self, e: Exception) -> None:
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText(f'No ha sido posible conectar con el servidor.\
+ Por favor intentar nuevamente o revisar información de conexión. Detalles:')
+        msg.setWindowTitle("Error") 
+        msg.setInformativeText(e.__str__())
+        msg.exec_()
+
+    def mostrar_name_err(self, errors: list) -> None:
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Problema al ingreso:\n")
+        msg.setWindowTitle("Error")
+        error = ''
+        if 'void' in errors:
+            error = error + '• Ningún nombre de usuario entregado\n'
+        if 'alnum' in errors:
+            error = error + '• Uso de caracteres no alfanuméricos\n'
+        if 'len' in errors:
+            error = error +\
+                "• Nombre debe tener 1 a 10 caracteres de longitud\n"
+        if 'existing' in errors:
+            error = error + '• Usuario ya existente en servidor.\n'
+        if 'full' in errors:
+            error += '\nLa sala de espera está llena! Intenta nuevamente\
+ en unos segundos.\n'
+        msg.setInformativeText(error) 
+        msg.exec_()

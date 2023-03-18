@@ -17,3 +17,9 @@ QLabel#ItemLabel {
     font-family: 'Tahoma';
     margin: 4px;
 }
+QLabel#Cell {
+	border: 1px solid #fcba03;
+}
+QLabel#Cell:hover {
+	background-color: #b3ffff;
+}

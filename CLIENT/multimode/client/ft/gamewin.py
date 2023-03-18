@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from ft.boxes import StatSet, ItemSet
-from ft.board import Board, Board2
+from ft.board import Board
 from ft.fun import hpad_this
 from ft.styles import dialog_style, title_style_2, store_cell
 import paths as pt
@@ -12,36 +12,32 @@ class GameWindow(QWidget):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.init_gui((1,))
+        self.init_gui()
         self.stylize_gui()
 
-    def init_gui(self, data: tuple) -> None:
+    def init_gui(self) -> None:
         self.background: QLabel = QLabel(parent=self)
         self.setMinimumSize(1050, 690)
-        p2anel = self.player_2_panel()
+
+        # We save these to update players names
+        self.p1anel = self.player_1_panel()
+        self.p2anel = self.player_2_panel()
+
+        # No need to save these
         board_panel = self.board_panel()
-        p1anel = self.player_1_panel()
         cards_panel = self.cards_panel()
         store_panel = self.store_panel()
 
-        
-
-
+        # Window disrtribution
         grid = QGridLayout()
-        grid.addWidget(p1anel, 1, 1, 8, 1)
+        grid.addWidget(self.p1anel, 1, 1, 8, 1)
         grid.addWidget(board_panel, 1, 2, 6, 6)
-        grid.addWidget(p2anel, 1, 8, 8, 1)
+        grid.addWidget(self.p2anel, 1, 8, 8, 1)
         grid.addWidget(store_panel, 7, 2, 2, 4)
         grid.addWidget(cards_panel, 7, 6, 2, 2)
 
         self.background.setLayout(grid)
         self.background.setFixedSize(self.size())
-
-
-
-        self.show()
-
- 
 
     def stylize_gui(self) -> None:
         im_back: QPixmap = QPixmap(pt.im_gamewin_back)
@@ -90,10 +86,6 @@ class GameWindow(QWidget):
         ext_lay.addStretch()
         cards_panel.setLayout(ext_lay)
         return cards_panel
-
-    """
-    Revisited
-    """
     
     def board_panel(self) -> QGroupBox:
         box = QGroupBox(title='Battle Field')
@@ -129,17 +121,17 @@ class GameWindow(QWidget):
 
         # total layout
         int_lay = QHBoxLayout()
-        int_lay.addStretch()
+        int_lay.addStretch(5)
         int_lay.addWidget(self.pawn)
-        int_lay.addStretch()
+        int_lay.addStretch(1)
         int_lay.addWidget(self.horse)
-        int_lay.addStretch()
+        int_lay.addStretch(1)
         int_lay.addWidget(self.bishop)
-        int_lay.addStretch()
+        int_lay.addStretch(1)
         int_lay.addWidget(self.rook)
-        int_lay.addStretch()
+        int_lay.addStretch(1)
         int_lay.addWidget(self.joker)
-        int_lay.addStretch()
+        int_lay.addStretch(5)
 
         ext_lay = QVBoxLayout()
         ext_lay.addStretch()
@@ -150,8 +142,8 @@ class GameWindow(QWidget):
         return store
     
     def player_2_panel(self) -> QGroupBox:
-        self.p2anel: QGroupBox = QGroupBox(title='Player 2')
-        self.p2anel.setMaximumWidth(115)
+        p2anel: QGroupBox = QGroupBox(title='Player 2')
+        p2anel.setMaximumWidth(115)
         
         self.p2_HP = StatSet(pt.im_heart, pt.im_stat_frame)
         self.p2_VP = StatSet(pt.im_shield, pt.im_stat_frame)
@@ -165,12 +157,12 @@ class GameWindow(QWidget):
         lay_p2.addLayout(self.p2_LP)
         lay_p2.addLayout(self.p2_CP)
 
-        self.p2anel.setLayout(lay_p2)
-        return self.p2anel
+        p2anel.setLayout(lay_p2)
+        return p2anel
     
     def player_1_panel(self) -> QGroupBox:
-        self.p1anel: QGroupBox = QGroupBox(title='Player 1')
-        self.p1anel.setMaximumWidth(115)
+        p1anel: QGroupBox = QGroupBox(title='Player 1')
+        p1anel.setMaximumWidth(115)
         
         self.p1_HP = StatSet(pt.im_heart, pt.im_stat_frame)
         self.p1_VP = StatSet(pt.im_shield, pt.im_stat_frame)
@@ -184,9 +176,13 @@ class GameWindow(QWidget):
         lay_p1.addLayout(self.p1_LP)
         lay_p1.addLayout(self.p1_CP)
 
-        self.p1anel.setLayout(lay_p1)
-        return self.p1anel
+        p1anel.setLayout(lay_p1)
+        return p1anel
     
+    def launch(self, username: str) -> None:
+        self.p1anel.setTitle(username)
+        self.show()
+
     def resizeEvent(self, event) -> None:
         self.background.setFixedSize(self.size())
         return super().resizeEvent(event)

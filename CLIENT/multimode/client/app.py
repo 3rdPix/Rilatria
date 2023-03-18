@@ -3,30 +3,38 @@ from PyQt5.QtWidgets import QApplication
 from ft.gamewin import GameWindow
 from ft.welcome_window import WelWin
 
-from bk.gamewin import GameWinLog
+from bk.game_logic import ClientLogic
 
 
 class Rilatria(QApplication):
 
-    def __init__(self, argv: list[str]) -> None:
+    def __init__(self, argv: list[str], host: str, port: int) -> None:
         super().__init__(argv)
 
-        # Instance the window front
-        self.gamewin_ft: GameWindow = GameWindow()
-        self.welwin_ft: WelWin = WelWin()
+        # Instance front
+        self.ft_game: GameWindow = GameWindow()
+        self.ft_login: WelWin = WelWin()
 
-        # Instance the window back
-        self.gamewin_bk: GameWinLog = GameWinLog()
+        # Instance back
+        self.t_client: ClientLogic = ClientLogic(host, port)
 
         
         self.connect_signals()
+        self.t_client.launch()
 
-        self.gamewin_ft.show()
+
 
     def connect_signals(self) -> None:
         
-        self.welwin_ft.sg_play.connect(
-            self.gamewin_bk.receive_start)
+        self.t_client.ant_show_login.connect(
+            self.ft_login.show)
         
-        self.gamewin_bk.sg_starting_data.connect(
-            self.gamewin_ft.init_gui)
+        self.ft_login.ant_request_login.connect(
+            self.t_client.request_login)
+        
+        self.t_client.ant_wire_error.connect(
+            self.ft_login.mostrar_conx_err)
+        
+        self.t_client.ant_login_error.connect(
+            self.ft_login.mostrar_name_err)
+        pass
