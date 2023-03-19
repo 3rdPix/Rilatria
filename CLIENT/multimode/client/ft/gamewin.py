@@ -1,18 +1,27 @@
 from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
-    QLabel, QFrame, QGridLayout
+    QLabel, QGridLayout
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
 from ft.boxes import StatSet, ItemSet
 from ft.board import Board
-from ft.fun import hpad_this
 import paths as pt
+import json
 
 class GameWindow(QWidget):
 
     def __init__(self, lang: int, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.set_text(lang)
         self.init_gui()
         self.stylize_gui()
+        self.show()
+
+    def set_text(self, lang: int) -> None:
+        match lang:
+            case 0: file = pt.lang_eng
+            case 1: file = pt.lang_spa
+            case 2: file = pt.lang_fre
+        with open(file, 'r', encoding='utf-8') as raw:
+            self.text = json.load(raw).get('game_win')
 
     def init_gui(self) -> None:
         self.background: QLabel = QLabel(parent=self)
@@ -39,16 +48,16 @@ class GameWindow(QWidget):
         self.background.setFixedSize(self.size())
 
     def stylize_gui(self) -> None:
-        im_back: QPixmap = QPixmap(pt.im_gamewin_back)
+        im_back: QPixmap = QPixmap(pt.pic_gamewin_back)
         self.background.setPixmap(im_back)
         self.background.setScaledContents(True)
 
-        with open(pt.css_gamewin, 'r') as raw: style = raw.read()
+        with open(pt.qss_gamewin, 'r') as raw: style = raw.read()
         self.setStyleSheet(style)
 
     def cards_panel(self) -> QGroupBox:
 
-        cards_panel = QGroupBox(title='Cards')
+        cards_panel = QGroupBox(title=self.text.get('cards'))
 
         # Cards
         self.card1: QLabel = QLabel()
@@ -64,7 +73,7 @@ class GameWindow(QWidget):
         self.card3.setFixedSize(81, 121)
 
         # Delete
-        im_try = QPixmap(pt.im_try)
+        im_try = QPixmap(pt.pic_try)
         self.card1.setPixmap(im_try)
         self.card2.setPixmap(im_try)
         self.card3.setPixmap(im_try)
@@ -87,7 +96,7 @@ class GameWindow(QWidget):
         return cards_panel
     
     def board_panel(self) -> QGroupBox:
-        box = QGroupBox(title='Battle Field')
+        box = QGroupBox(title=self.text.get('field'))
         self.board = Board()
         v_box = QVBoxLayout()
         v_box.addStretch()
@@ -104,19 +113,19 @@ class GameWindow(QWidget):
         return box 
 
     def store_panel(self) -> QGroupBox:
-        store: QGroupBox = QGroupBox(title='Store')
+        store: QGroupBox = QGroupBox(title=self.text.get('store'))
         store.setMinimumSize(510, 130)
 
-        self.pawn = ItemSet(pt.im_pawn, 'Bárbaro', pt.im_item_back,
-                       pt.im_item_hover, pt.im_item_click)
-        self.horse = ItemSet(pt.im_horse, 'Jinete', pt.im_item_back,
-                        pt.im_item_hover, pt.im_item_click)
-        self.bishop = ItemSet(pt.im_bishop, 'Lancero', pt.im_item_back,
-                         pt.im_item_hover, pt.im_item_click)
-        self.rook = ItemSet(pt.im_rook, 'Armatoste', pt.im_item_back,
-                       pt.im_item_hover, pt.im_item_click)
-        self.joker = ItemSet(pt.im_joker, 'Asesino', pt.im_item_back,
-                        pt.im_item_hover, pt.im_item_click)
+        self.pawn = ItemSet(pt.pic_pawn, self.text.get('item1'), pt.pic_item_back,
+                       pt.pic_item_hover, pt.pic_item_click)
+        self.horse = ItemSet(pt.pic_horse, self.text.get('item2'), pt.pic_item_back,
+                        pt.pic_item_hover, pt.pic_item_click)
+        self.bishop = ItemSet(pt.pic_bishop, self.text.get('item3'), pt.pic_item_back,
+                         pt.pic_item_hover, pt.pic_item_click)
+        self.rook = ItemSet(pt.pic_rook, self.text.get('item4'), pt.pic_item_back,
+                       pt.pic_item_hover, pt.pic_item_click)
+        self.joker = ItemSet(pt.pic_joker, self.text.get('item5'), pt.pic_item_back,
+                        pt.pic_item_hover, pt.pic_item_click)
 
         # total layout
         int_lay = QHBoxLayout()
@@ -144,10 +153,10 @@ class GameWindow(QWidget):
         p2anel: QGroupBox = QGroupBox(title='Player 2')
         p2anel.setMaximumWidth(115)
         
-        self.p2_HP = StatSet(pt.im_heart, pt.im_stat_frame)
-        self.p2_VP = StatSet(pt.im_shield, pt.im_stat_frame)
-        self.p2_LP = StatSet(pt.im_clover, pt.im_stat_frame)
-        self.p2_CP = StatSet(pt.im_coin, pt.im_stat_frame)
+        self.p2_HP = StatSet(pt.pic_heart, pt.pic_stat_frame)
+        self.p2_VP = StatSet(pt.pic_shield, pt.pic_stat_frame)
+        self.p2_LP = StatSet(pt.pic_clover, pt.pic_stat_frame)
+        self.p2_CP = StatSet(pt.pic_coin, pt.pic_stat_frame)
 
         # Panel layout
         lay_p2 = QVBoxLayout()
@@ -163,10 +172,10 @@ class GameWindow(QWidget):
         p1anel: QGroupBox = QGroupBox(title='Player 1')
         p1anel.setMaximumWidth(115)
         
-        self.p1_HP = StatSet(pt.im_heart, pt.im_stat_frame)
-        self.p1_VP = StatSet(pt.im_shield, pt.im_stat_frame)
-        self.p1_LP = StatSet(pt.im_clover, pt.im_stat_frame)
-        self.p1_CP = StatSet(pt.im_coin, pt.im_stat_frame)
+        self.p1_HP = StatSet(pt.pic_heart, pt.pic_stat_frame)
+        self.p1_VP = StatSet(pt.pic_shield, pt.pic_stat_frame)
+        self.p1_LP = StatSet(pt.pic_clover, pt.pic_stat_frame)
+        self.p1_CP = StatSet(pt.pic_coin, pt.pic_stat_frame)
 
         # Panel layout
         lay_p1 = QVBoxLayout()

@@ -17,6 +17,7 @@
     {
         "field": "Campo de batalla",
         "store": "Tienda",
+        "cards": "Cartas",
         "item1": "Bárbaro",
         "item2": "Jinete",
         "item3": "Lancero",

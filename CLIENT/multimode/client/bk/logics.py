@@ -1,4 +1,4 @@
-from cripto import desencriptar, encriptar
+from cripto import decrypt, encrypt
 from socket import socket as wire
 import json
 
@@ -21,7 +21,7 @@ class Router:
         recibido_bruto = recibido_bruto[0:leng]
 
         # Segunda parte: interpreta los bytes del mensaje
-        not_encriptado = desencriptar(recibido_bruto)
+        not_encriptado = decrypt(recibido_bruto)
         not_coded = not_encriptado.decode()
         not_dumped = json.loads(not_coded)
         return not_dumped
@@ -35,7 +35,7 @@ class Router:
         # Primera parte: encriptación
         dumped = json.dumps(written)
         coded = dumped.encode()
-        encriptado = encriptar(bytearray(coded))
+        encriptado = encrypt(bytearray(coded))
         
         # Segunda parte: construcción del mensaje
         mensaje: bytearray = bytearray()

@@ -17,6 +17,7 @@
     {
         "field": "Battle field",
         "store": "Store",
+        "cards": "Cards",
         "item1": "Barbarian",
         "item2": "Horse rider",
         "item3": "Spearman",

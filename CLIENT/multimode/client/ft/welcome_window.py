@@ -42,9 +42,9 @@ class WelWin(QWidget):
 
         # language selector
         self.lang_selec: QComboBox = QComboBox()
-        english: QIcon = QIcon(pt.im_english)
-        spanish: QIcon = QIcon(pt.im_spanish)
-        french: QIcon = QIcon(pt.im_french)
+        english: QIcon = QIcon(pt.pic_english)
+        spanish: QIcon = QIcon(pt.pic_spanish)
+        french: QIcon = QIcon(pt.pic_french)
         self.lang_selec.addItem(english, 'English')
         self.lang_selec.addItem(spanish, 'Español')
         self.lang_selec.addItem(french, 'Français')
@@ -96,10 +96,10 @@ class WelWin(QWidget):
     def stylize_gui(self) -> None:
         self.setWindowTitle(self.text.get('title'))
         self.setFixedSize(400, 250)
-        im_back: QPixmap = QPixmap(pt.im_welwin_back)
+        im_back: QPixmap = QPixmap(pt.pic_welwin_back)
         self.background.setPixmap(im_back)
         self.background.setScaledContents(True)
-        with open(pt.css_welwin, 'r') as css: self.setStyleSheet(css.read())
+        with open(pt.qss_welwin, 'r') as css: self.setStyleSheet(css.read())
 
     def connect_events(self) -> None:
         self.play_bt.clicked.connect(lambda:
