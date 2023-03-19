@@ -67,8 +67,7 @@ class Server:
     def handle_disconnection(self, end_wire: socket) -> None:
         gone: Player = self.players.get(end_wire)
         self.log(1, f'Sudden disconnection at {gone.ip}')
-        if self.lobby.exists(gone):
-            self.lobby.leaves(gone)
+        if self.lobby.exists(gone): self.lobby.leaves(gone)
         del self.players[end_wire]
         del end_wire
 
