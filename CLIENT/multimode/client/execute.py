@@ -1,6 +1,7 @@
 from app import Rilatria
 import sys
 import socket
+import json
 
 if __name__ == '__main__':
     def hook(type, value, traceback):

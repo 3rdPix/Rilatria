@@ -5,12 +5,11 @@ from PyQt5.QtCore import Qt
 from ft.boxes import StatSet, ItemSet
 from ft.board import Board
 from ft.fun import hpad_this
-from ft.styles import dialog_style, title_style_2, store_cell
 import paths as pt
 
 class GameWindow(QWidget):
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, lang: int, **kwargs) -> None:
         super().__init__(**kwargs)
         self.init_gui()
         self.stylize_gui()

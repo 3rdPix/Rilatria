@@ -1,48 +1,82 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QVBoxLayout,\
+from PyQt5.QtWidgets import QWidget, QLineEdit, QVBoxLayout, QComboBox,\
     QLabel, QPushButton, QFrame, QGridLayout, QMessageBox
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import pyqtSignal, Qt
 from ft.fun import hpad_this
 import paths as pt
+import json
 
 
 class WelWin(QWidget):
 
     ant_request_login = pyqtSignal(str)
+    ant_update_lang = pyqtSignal(int)
 
-    def __init__(self) -> None:
+    def __init__(self, lang: int) -> None:
         super().__init__()
+        self.set_text(lang)
         self.init_gui()
         self.stylize_gui()
         self.connect_events()
 
+    def set_text(self, lang: int) -> None:
+        match lang:
+            case 0: file = pt.lang_eng
+            case 1: file = pt.lang_spa
+            case 2: file = pt.lang_fre
+        with open(file, 'r', encoding='utf-8') as raw:
+            self.text = json.load(raw).get('login_win')
+
     def init_gui(self) -> None:
         
-        # Top
+        """
+        Top
+        """
+        # frame
         top_frame: QFrame = QFrame()
         top_frame.setFrameStyle(QFrame.StyledPanel|QFrame.Plain)
-        top_frame.setLineWidth(1)
-        with open(pt.txt_advise, 'r') as raw: advise_text = raw.read()
-        advise_label: QLabel = QLabel(text=advise_text)
-        advise_label.setWordWrap(True)
+
+        # advise text
+        self.advise_label: QLabel = QLabel(self.text.get('advise'))
+        self.advise_label.setWordWrap(True)
+
+        # language selector
+        self.lang_selec: QComboBox = QComboBox()
+        english: QIcon = QIcon(pt.im_english)
+        spanish: QIcon = QIcon(pt.im_spanish)
+        french: QIcon = QIcon(pt.im_french)
+        self.lang_selec.addItem(english, 'English')
+        self.lang_selec.addItem(spanish, 'Español')
+        self.lang_selec.addItem(french, 'Français')
+
+        # layout
         zerogrid1: QGridLayout = QGridLayout()
-        zerogrid1.addWidget(advise_label)
+        zerogrid1.addWidget(self.advise_label, 1, 1, Qt.AlignLeft)
+        zerogrid1.addWidget(self.lang_selec, 1, 2, Qt.AlignRight)
         top_frame.setLayout(zerogrid1)
 
-        # Bottom
+        """
+        Bottom
+        """
+        # frame
         bottom_frame: QFrame = QFrame()
         bottom_frame.setFrameStyle(QFrame.StyledPanel|QFrame.Plain)
-        bottom_frame.setLineWidth(1)
-        username_label: QLabel = QLabel('Hero name:')
+
+        # username text and textbox
+        self.username_label: QLabel = QLabel(self.text.get('name'))
         self.username_textbox: QLineEdit = QLineEdit()
-        self.username_textbox.setFocus()
-        self.play_bt: QPushButton = QPushButton(text='Enter legend')
+        self.play_bt: QPushButton = QPushButton(self.text.get('button'))
+
+        #layout
         bottom_frame.setLayout(hpad_this(
-            (username_label, self.username_textbox),
+            (self.username_label, self.username_textbox),
             self.play_bt
         ))
 
-        # Background and container
+        """
+        Window Layout
+        """
+        # internal
         self.background: QLabel = QLabel()
         self.background.setObjectName('backLabel')
         v_lay: QVBoxLayout = QVBoxLayout()
@@ -57,49 +91,45 @@ class WelWin(QWidget):
         drawer.addWidget(self.background)
         drawer.setContentsMargins(0, 0, 0, 0)
         self.setLayout(drawer)
+        self.username_textbox.setFocus()
 
     def stylize_gui(self) -> None:
-        self.setFixedSize(370, 200)
-
+        self.setWindowTitle(self.text.get('title'))
+        self.setFixedSize(400, 250)
         im_back: QPixmap = QPixmap(pt.im_welwin_back)
         self.background.setPixmap(im_back)
         self.background.setScaledContents(True)
-
-        with open(pt.css_welwin, 'r') as css: style = css.read()
-        self.setStyleSheet(style)
+        with open(pt.css_welwin, 'r') as css: self.setStyleSheet(css.read())
 
     def connect_events(self) -> None:
-        self.play_bt.clicked.connect(self.send_game)
+        self.play_bt.clicked.connect(lambda:
+            self.ant_request_login.emit(self.username_textbox.text()))
+        self.lang_selec.currentIndexChanged.connect(self.redo_text)
 
-    def send_game(self) -> None:
-        self.ant_request_login.emit(self.username_textbox.text())
+    def redo_text(self, lang: int) -> None:
+        self.set_text(lang)
+        self.advise_label.setText(self.text.get('advise'))
+        self.username_label.setText(self.text.get('name'))
+        self.play_bt.setText(self.text.get('button'))
+        self.setWindowTitle(self.text.get('title'))
+        self.ant_update_lang.emit(lang)
 
-    def mostrar_conx_err(self, e: Exception) -> None:
+    def connection_error_message(self, e: Exception) -> None:
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
-        msg.setText(f'No ha sido posible conectar con el servidor.\
- Por favor intentar nuevamente o revisar información de conexión. Detalles:')
-        msg.setWindowTitle("Error") 
+        msg.setText(self.text.get('connection_error'))
+        msg.setWindowTitle(self.text.get('connection_error_title')) 
         msg.setInformativeText(e.__str__())
         msg.exec_()
 
-    def mostrar_name_err(self, errors: list) -> None:
+    def username_error_message(self, errors: list) -> None:
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
-        msg.setText("Problema al ingreso:\n")
-        msg.setWindowTitle("Error")
+        msg.setText(self.text.get('name_error'))
+        msg.setWindowTitle(self.text.get('name_error_title'))
         error = ''
-        if 'void' in errors:
-            error = error + '• Ningún nombre de usuario entregado\n'
-        if 'alnum' in errors:
-            error = error + '• Uso de caracteres no alfanuméricos\n'
-        if 'len' in errors:
-            error = error +\
-                "• Nombre debe tener 1 a 10 caracteres de longitud\n"
-        if 'existing' in errors:
-            error = error + '• Usuario ya existente en servidor.\n'
-        if 'full' in errors:
-            error += '\nLa sala de espera está llena! Intenta nuevamente\
- en unos segundos.\n'
+        if 'void' in errors: error = error + self.text.get('name_void')
+        if 'len' in errors: error = error + self.text.get('name_len')
+        if 'existing' in errors: error = error + self.text.get('name_existing')
         msg.setInformativeText(error) 
         msg.exec_()

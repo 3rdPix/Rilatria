@@ -1,0 +1,26 @@
+{
+    "login_win":
+    {
+        "title": "croissant",
+        "advise": "croissant",
+        "name": "croissant",
+        "button": "croissant",
+        "connection_error_title": "croissant",
+        "connection_error": "croissant",
+        "name_error_title": "croissant",
+        "name_error": "croissant",
+        "name_void": "croissant",
+        "name_len": "croissant",
+        "name_existing": "croissant"
+    },
+    "game_win":
+    {
+        "field": "croissant",
+        "store": "croissant",
+        "item1": "croissant",
+        "item2": "croissant",
+        "item3": "croissant",
+        "item4": "croissant",
+        "item5": "croissant"
+    }
+}

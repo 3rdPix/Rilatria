@@ -1,0 +1,26 @@
+{
+    "login_win":
+    {
+        "title": "Conectarse a Rilatria, la legendaria batalla",
+        "advise": "Escucha bien, oh valeroso héroe! Ten presente que tu nombre será el legado que dejarás en relatos de gran prestigio y admiración. Así que elige sabiamente tu denominación antes de aventurarte en el mundo más allá.",
+        "name": "Nombre de Héroe",
+        "button": "¡Unirse a la batalla!",
+        "connection_error_title": "Error",
+        "connection_error": "Tuvimos un problema en la conexión con el servidor. Por favor espera unos minutos he inténtalo nuevamente.",
+        "name_error_title": "Error en el nombre de usuario",
+        "name_error": "Encontramos los siguiente problemas intentando entrar con ese nombre de usuario:",
+        "name_void": "• Ningún nombre de usuario fue introducido\n",
+        "name_len": "• El nombre de usuario es demasiado largo\n",
+        "name_existing": "• El nombre de usuario ya está en uso\n"
+    },
+    "game_win":
+    {
+        "field": "Campo de batalla",
+        "store": "Tienda",
+        "item1": "Bárbaro",
+        "item2": "Jinete",
+        "item3": "Lancero",
+        "item4": "Armatoste",
+        "item5": "Asesino"
+    }
+}

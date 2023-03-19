@@ -19,9 +19,14 @@ QComboBox {
 	color: #B4B4B2;
 	padding-left: 13px;
 	vertical-align: CENTER;
+    selection-background-color: transparent;
 }
 QComboBox::selection {
     background-color: #312D24;
+}
+QComboBox QAbstractItemView
+{
+    selection-background-color: transparent;
 }
 QListView {
     background-color: #312D24;

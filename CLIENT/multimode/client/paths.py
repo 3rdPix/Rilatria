@@ -1,7 +1,7 @@
 from os.path import join
 # Paths are relative to execute.py
 """
-Iamges
+Images
 """
 im_heart: str = join('ft', 'art', 'player_stats', 'heart_reward.png')
 im_clover: str = join('ft', 'art', 'player_stats', 's2.png')
@@ -21,15 +21,22 @@ im_item_back: str = join('ft', 'art', 'bg_items_shop.png')
 im_item_hover: str = join('ft', 'art', 'bg_items_shop_on.jpg')
 im_item_click: str = join('ft', 'art', 'bg_square_red.jpg')
 
+im_spanish: str = join('ft', 'art', 'lang', 'spanish.png')
+im_english: str = join('ft', 'art', 'lang', 'english.png')
+im_french: str = join('ft', 'art', 'lang', 'french.png')
+
 im_try: str = join('ft', 'art', 'cframe2.png')
 
 """
 Styles
 """
-css_welwin: str = join('ft', 'css', 'log_in_window.css')
-css_gamewin: str = join('ft', 'css', 'game_window.css')
+css_welwin: str = join('ft', 'qss', 'log_in_window.qss')
+css_gamewin: str = join('ft', 'qss', 'game_window.qss')
 
 """
 Content
 """
 txt_advise: str = join('ft', 'content', 'advise.txt')
+lang_spa: str = join('ft', 'lang', 'spanish.json')
+lang_eng: str = join('ft', 'lang', 'english.json')
+lang_fre: str = join('ft', 'lang', 'french.json')
