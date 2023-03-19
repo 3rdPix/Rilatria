@@ -11,8 +11,9 @@ El juego se encuentra en la carpeta `CLIENT`, separada en 3 subcarpetas referida
     - `old`: no está claro que es esto, una mezcla de ambas versiones, hecha anteriormente para ir probando cosas: se puede utilizar como respaldo para alguna funcionalidad que haya sido destruida accidentalmente, o como campo de juegos.
 En la carpeta `Others` hay un directorio `playground` para escribir programas y probar funcionalidades sin compromiso de inserción en la versión final del juego.
 </br>
+
 **Conexión de jugadores en multimode**
 
 Los juegos se lanzan desde la *Sala de espera* cada 5 segundos cuando hay dos jugadores en ella. Más jugadores conectados llevan a la creación de una *Cola de espera*, instancia donde se espera que la *Sala de espera* se vacíe. No hay límite para la cantidad de jugadores en cola. A medida que se vaya vaciando la *Sala de espera* la *Cola de espera* irá avanzando. La sala de espera está preparada para cualquier tipo de desconexión.
-![](Others\cola_espera1.jpg "Ejemplo 1")
-![](Others\cola_espera2.jpg "Ejemplo 2")
+![](Others/cola_espera1.jpg "Ejemplo 1")
+![](Others/cola_espera2.jpg "Ejemplo 2")
