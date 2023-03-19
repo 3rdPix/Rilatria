@@ -6,7 +6,9 @@ from threading import Lock
 @dataclass
 class Player:
     ip: str
-    wing: socket
+    wire: socket
     controller: Lock = Lock()
     username: str = None
 
+    def __repr__(self) -> str:
+        return f'Player {self.username}'

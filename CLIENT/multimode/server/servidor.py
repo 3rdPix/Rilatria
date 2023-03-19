@@ -26,6 +26,9 @@ class Server:
             case 1: print('[EVENT]', msg)
             case 2: print('[REQUEST]', msg)
 
+    """
+    Network
+    """
     def bind_and_listen(self) -> None:
         self.sv_socket.bind((self.host, self.port))
         self.sv_socket.listen()
@@ -40,73 +43,85 @@ class Server:
     def accept_connections(self) -> None:
         self.log(0, 'Server accepting connections...')
         while True:
-            client_socket, (client_addrs, client_port) = self.sv_socket.accept()
-            self.log(1, f'Connected to new client at {client_addrs}:{client_port}')
-            player = Player(ip=client_addrs, wing=client_socket)
-            self.players[client_socket] = player
+            end_wire, (end_addrs, end_port) = self.sv_socket.accept()
+            self.log(1, f'Connected to new client at {end_addrs}:{end_port}')
+            self.players[end_wire] = Player(ip=end_addrs, wire=end_wire)
             listener = threading.Thread(
-                target=self.client_listen_thread,
-                args=(client_socket, ),
+                target=self.end_listen_thread,
+                args=(end_wire, ),
                 daemon=True)
             listener.start()
 
-    def client_listen_thread(self, client_socket: socket) -> None:
+    def end_listen_thread(self, end_wire: socket) -> None:
         try:
             while True:
-                len_in_bytes = client_socket.recv(4)
+                len_in_bytes = end_wire.recv(4)
                 content_length = int.from_bytes(
                     len_in_bytes, byteorder='big')
                 request = Router.recibir_bytes(
-                    content_length, client_socket)
-                self.read_request(request, client_socket)
+                    content_length, end_wire)
+                self.read_request(request, end_wire)
         except ConnectionError:
-            self.handle_disconnection(client_socket)
+            self.handle_disconnection(end_wire)
 
-    def handle_disconnection(self, client: socket) -> None:
-        gone = self.players.get(client)
+    def handle_disconnection(self, end_wire: socket) -> None:
+        gone: Player = self.players.get(end_wire)
         self.log(1, f'Sudden disconnection at {gone.ip}')
         if self.lobby.exists(gone):
             self.lobby.leaves(gone)
-            if not self.lobby.is_Empty():
-                self.starken(Instructions.avisar_abandono_espera(),
-                    self.lobby.j1.wing)
-        del self.players[client]
-        del client
-            
-    def read_request(self, request: dict, wire: socket) -> None:
-        match request.get('request'):
-            case 'user_name': self.ver_usuario(request, wire)
+        del self.players[end_wire]
+        del end_wire
 
-    def starken(self, objeto, wing: socket) -> None:
+    def starken(self, objeto, end_wire: socket) -> None:
         msg = Router.codificar_bytes(objeto)
-        traffic_handler: threading.Lock = self.players.get(wing).controller
+        traffic_handler: threading.Lock = self.players.get(end_wire).controller
         traffic_handler.acquire()
-        wing.sendall(msg)
+        end_wire.sendall(msg)
         traffic_handler.release()
+    
+    """
+    Requests
+    """
+    def read_request(self, request: dict, end_wire: socket) -> None:
+        match request.get('request'):
+            case 'user_name': self.ver_usuario(request, end_wire)
 
-    def ver_usuario(self, request: dict, wire: socket) -> None:
+    def ver_usuario(self, request: dict, end_wire: socket) -> None:
         nick: str = request.get('name')
-        self.log(2, f'User at {self.players.get(wire).ip} request for name "{nick}"')
+        self.log(2, f'User at {self.players.get(end_wire).ip} requests for name "{nick}"')
+        
+        # search for errors
         errors: list = list()
-        if nick == '': errors.append('void')
+        if not nick: errors.append('void')
         for jugador in self.players.values():
             if jugador.username == nick:
                 errors.append('existing')
                 break
-        errors.append('existing')
+        
+        # resolve errors
         if errors:
             self.log(1, f'Username {nick} has been rejected')
-            self.starken(Instructions.user_name_check(errors), wire)
+            self.starken(Instructions.user_name_check(errors), end_wire)
         else:
+            # inform of success
             self.log(1, f'Username {nick} has been accepted')
-            self.players.get(wire).username = nick
-            self.starken(Instructions.user_name_check(errors), wire)
-            self.lobby.joins(self.players.get(wire))
-            if self.lobby.is_Full(): self.atender_sala_espera()
+            self.players.get(end_wire).username = nick
+            self.starken(Instructions.user_name_check(errors), end_wire)
+
+            # handle new player
+            self.lobby.joins(self.players.get(end_wire))
+
+    """
+    Instructions
+    """
 
     def atender_sala_espera(self) -> None:
         order_1 = Instructions.info_adv(self.lobby.j2.username)
         order_2 = Instructions.info_adv(self.lobby.j1.username)
-        self.starken(order_1, self.lobby.j1.wing)
-        self.starken(order_2, self.lobby.j2.wing)
+        self.starken(order_1, self.lobby.j1.wire)
+        self.starken(order_2, self.lobby.j2.wire)
         self.lobby.empieza_conteo()
+
+    """
+    Tasks
+    """
