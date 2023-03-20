@@ -12,3 +12,4 @@ class Player:
 
     def __repr__(self) -> str:
         return f'Player {self.username}'
+    

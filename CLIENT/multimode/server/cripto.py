@@ -1,4 +1,4 @@
-def encriptar(msg : bytearray) -> bytearray:
+def encrypt(msg : bytearray) -> bytearray:
     box_1: bytearray = bytearray()
     box_2: bytearray = bytearray()
     box_3: bytearray = bytearray()
@@ -26,7 +26,7 @@ def encriptar(msg : bytearray) -> bytearray:
         case 1: return bytearray(int(1).to_bytes(1, 'big') + box_1 + box_3 + box_2)
 
 
-def desencriptar(msg : bytearray) -> bytearray:
+def decrypt(msg : bytearray) -> bytearray:
     order: int = msg.pop(0)
     min_size: int = len(msg) // 3
     fix: int = 0 if len(msg) % 3 == 0 else 1
@@ -50,22 +50,3 @@ def desencriptar(msg : bytearray) -> bytearray:
             case 1: message.extend(box_2.pop(0).to_bytes(1, 'big'))
             case 2: message.extend(box_3.pop(0).to_bytes(1, 'big'))
     return message
-
-
-if __name__ == "__main__":
-    # Testear encriptar
-    msg_original = bytearray(b'\x05\x08\x03\x02\x04\x03\x05\x09\x05\x09\x01')
-    msg_esperado = bytearray(b'\x01\x05\x02\x05\x09\x03\x03\x05\x08\x04\x09\x01')
-
-    msg_encriptado = encriptar(msg_original)
-    if msg_encriptado != msg_esperado:
-        print("[ERROR] Mensaje escriptado erroneamente")
-    else:
-        print("[SUCCESSFUL] Mensaje escriptado correctamente")
-    
-    # Testear desencriptar
-    msg_desencriptado = desencriptar(msg_esperado)
-    if msg_desencriptado != msg_original:
-        print("[ERROR] Mensaje descencriptado erroneamente")
-    else:
-        print("[SUCCESSFUL] Mensaje descencriptado correctamente")

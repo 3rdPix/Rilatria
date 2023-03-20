@@ -1,8 +1,8 @@
-from socket import socket
 from threading import Thread
 from itertools import count
-from entidades import Player
+from entities import Player
 from time import sleep
+from logics import Router, Instructions
 
 
 class Node:
@@ -64,25 +64,23 @@ class WaitingRoomQueue:
 
 class WaitingRoom:
 
-    contador: count
-    tiempo_restante: int = 10
+    time_counter: count
+    remaining_time: int = 10
     queue = WaitingRoomQueue()
 
-    def __init__(self, count_start: int, router, instructions) -> None:
+    def __init__(self, count_start: int) -> None:
         self.j1: Player = None
         self.j2: Player = None
-        self.contando = False
-        self.inicia_en = count_start
-        self.router = router
-        self.cmd = instructions
-        self.contador = count(start=self.inicia_en, step=-1)
+        self.counting = False
+        self.starts_in = count_start
+        self.time_counter = count(start=self.starts_in, step=-1)
         self.present_players: list[Player] = list()
 
-    def joins(self, jugador: Player) -> None:
-        if self.is_Full(): self.queue.add(jugador)
-        if not self.j1: self.j1 = jugador
-        elif not self.j2: self.j2 = jugador
-        self.present_players.append(jugador)
+    def joins(self, player: Player) -> None:
+        if self.is_Full(): self.queue.add(player)
+        if not self.j1: self.j1 = player
+        elif not self.j2: self.j2 = player
+        self.present_players.append(player)
         print(self)
 
     def is_Full(self) -> bool:
@@ -93,49 +91,49 @@ class WaitingRoom:
         if self.j1 or self.j2: return False
         return True
 
-    def vaciar(self) -> None:
+    def clear(self) -> None:
         self.j1 = None
         self.j2 = None
 
     def leaves(self, player: Player) -> None:
         if player is self.j1:
-            self.cancelar_conteo()
+            self.cancel_counting()
             self.j1 = self.j2
             self.j2 = self.queue.call_next()
         elif player is self.j2:
-            self.cancelar_conteo()
+            self.cancel_counting()
             self.j2 = self.queue.call_next()
         else:
             self.queue.leaves(player)
         self.present_players.remove(player)
         print(self)
 
-    def empieza_conteo(self) -> None:
-        self.conteo: Thread = Thread(target=self.cuenta, daemon=True)
-        self.contando = True
-        self.conteo.start()
+    def start_counting(self) -> None:
+        self.counting_thread = Thread(target=self.count_time, daemon=True)
+        self.counting = True
+        self.counting_thread.start()
 
-    def cuenta(self) -> None:
-        while self.tiempo_restante > 0:
-            if not self.contando: return
-            self.tiempo_restante = next(self.contador)
-            self.starken_time(self.tiempo_restante)
+    def count_time(self) -> None:
+        while self.remaining_time > 0:
+            if not self.counting: return
+            self.remaining_time = next(self.time_counter)
+            self.starken_time(self.remaining_time)
             sleep(1)
         
-    def cancelar_conteo(self) -> None:
-        self.contando = False
-        self.tiempo_restante = 10
-        self.contador = count(start=self.inicia_en, step=-1)
+    def cancel_counting(self) -> None:
+        self.counting = False
+        self.remaining_time = 10
+        self.time_counter = count(start=self.starts_in, step=-1)
 
-    def esta_contando(self) -> bool:
-        return self.contando
+    def is_Counting(self) -> bool:
+        return self.counting
         
     def exists(self, player: Player) -> bool:
         return player in self.present_players
 
     def starken_time(self, time: int) -> None:
-        tiempo = self.cmd.informe_tiempo(time)
-        msg = self.router.codificar_bytes(tiempo)
+        tiempo = Instructions.remaining_time(time)
+        msg = Router.code_bytes(tiempo)
         self.j1.controller.acquire()
         self.j1.wire.sendall(msg)
         self.j1.controller.release()
@@ -145,31 +143,31 @@ class WaitingRoom:
 
     def __repr__(self) -> str:
         if self.is_Full():
-            mostrar: str = f'''[STATE]
-    -- Sala de espera --
-     Jugador 1: {self.j1.username}, en {self.j1.ip}
-     Jugador 2: {self.j2.username}, en {self.j2.ip}
+            screen: str = f'''[STATE]
+    -- Lobby --
+     Player 1: {self.j1.username}, at {self.j1.ip}
+     Player 2: {self.j2.username}, at {self.j2.ip}
     --------------------
-    -- Cola --
+    -- Queue --
     {self.queue}
     ----------
         '''
         elif self.is_Empty():
-            mostrar: str = f'''[STATE]
-    -- Sala de espera --
-     Vacía
+            screen: str = f'''[STATE]
+    -- Lobby --
+     Empty
     --------------------
-    -- Cola --
+    -- Queue --
     {self.queue}
     ----------
         '''
         else:
-            mostrar: str = f'''[STATE]
-    -- Sala de espera --
-     Jugador 1: {self.j1.username}, en {self.j1.ip}
+            screen: str = f'''[STATE]
+    -- Lobby --
+     Player 1: {self.j1.username}, at {self.j1.ip}
     --------------------
-    -- Cola --
+    -- Queue --
     {self.queue}
     ----------
         '''
-        return mostrar
+        return screen

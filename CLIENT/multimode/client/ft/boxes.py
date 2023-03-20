@@ -66,16 +66,19 @@ class ItemSet(QLabel):
         top.addStretch()
         content_lay.addLayout(top)
 
-        name_label = QLabel(text=name)
-        name_label.setWordWrap(True)
-        name_label.setObjectName('ItemLabel')
+        self.name_label = QLabel(text=name)
+        self.name_label.setWordWrap(True)
+        self.name_label.setObjectName('ItemLabel')
         bot = QHBoxLayout()
         bot.addStretch()
-        bot.addWidget(name_label)
+        bot.addWidget(self.name_label)
         bot.addStretch()
         content_lay.addLayout(bot)
         content_lay.addStretch()
         self.setLayout(content_lay)
+
+    def redo_text(self, name: str) -> None:
+        self.name_label.setText(name)
 
     def enterEvent(self, event) -> None:
         self.setPixmap(self.hover_back)

@@ -1,9 +1,8 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from logicas import Router, Instructions
-from sala_espera import WaitingRoom
-from entidades import Player
+from logics import Router, Instructions
+from waiting_room import WaitingRoom
+from entities import Player
 import threading
-from json import load
 
 class Server:
 
@@ -14,9 +13,7 @@ class Server:
         self.port = port
         self.sv_socket: socket = socket(AF_INET, SOCK_STREAM)
         self.players: dict[socket, Player] = dict()
-        self.lobby: WaitingRoom = WaitingRoom(
-            count_start=10,
-            router=Router(), instructions=Instructions())
+        self.lobby: WaitingRoom = WaitingRoom(count_start=10)
         self.bind_and_listen()
         self.start_connections_thread()
 
@@ -47,47 +44,47 @@ class Server:
             self.log(1, f'Connected to new client at {end_addrs}:{end_port}')
             self.players[end_wire] = Player(ip=end_addrs, wire=end_wire)
             listener = threading.Thread(
-                target=self.end_listen_thread,
+                target=self.client_listen_thread,
                 args=(end_wire, ),
                 daemon=True)
             listener.start()
 
-    def end_listen_thread(self, end_wire: socket) -> None:
+    def client_listen_thread(self, client_wire: socket) -> None:
         try:
             while True:
-                len_in_bytes = end_wire.recv(4)
+                len_in_bytes = client_wire.recv(4)
                 content_length = int.from_bytes(
                     len_in_bytes, byteorder='big')
-                request = Router.recibir_bytes(
-                    content_length, end_wire)
-                self.read_request(request, end_wire)
+                request = Router.receive_bytes(
+                    content_length, client_wire)
+                self.read_request(request, client_wire)
         except ConnectionError:
-            self.handle_disconnection(end_wire)
+            self.handle_disconnection(client_wire)
 
-    def handle_disconnection(self, end_wire: socket) -> None:
-        gone: Player = self.players.get(end_wire)
+    def handle_disconnection(self, client_wire: socket) -> None:
+        gone: Player = self.players.get(client_wire)
         self.log(1, f'Sudden disconnection at {gone.ip}')
         if self.lobby.exists(gone): self.lobby.leaves(gone)
-        del self.players[end_wire]
-        del end_wire
+        del self.players[client_wire]
+        del client_wire
 
-    def starken(self, objeto, end_wire: socket) -> None:
-        msg = Router.codificar_bytes(objeto)
-        traffic_handler: threading.Lock = self.players.get(end_wire).controller
+    def starken(self, objeto, client_wire: socket) -> None:
+        msg = Router.code_bytes(objeto)
+        traffic_handler: threading.Lock = self.players.get(client_wire).controller
         traffic_handler.acquire()
-        end_wire.sendall(msg)
+        client_wire.sendall(msg)
         traffic_handler.release()
     
     """
     Requests
     """
-    def read_request(self, request: dict, end_wire: socket) -> None:
+    def read_request(self, request: dict, client_wire: socket) -> None:
         match request.get('request'):
-            case 'user_name': self.ver_usuario(request, end_wire)
+            case 'user_name': self.check_username(request, client_wire)
 
-    def ver_usuario(self, request: dict, end_wire: socket) -> None:
+    def check_username(self, request: dict, client_wire: socket) -> None:
         nick: str = request.get('name')
-        self.log(2, f'User at {self.players.get(end_wire).ip} requests for name "{nick}"')
+        self.log(2, f'User at {self.players.get(client_wire).ip} requests for name "{nick}"')
         
         # search for errors
         errors: list = list()
@@ -100,26 +97,22 @@ class Server:
         # resolve errors
         if errors:
             self.log(1, f'Username {nick} has been rejected')
-            self.starken(Instructions.user_name_check(errors), end_wire)
-        else:
-            # inform of success
-            self.log(1, f'Username {nick} has been accepted')
-            self.players.get(end_wire).username = nick
-            self.starken(Instructions.user_name_check(errors), end_wire)
 
+        else:
             # handle new player
-            self.lobby.joins(self.players.get(end_wire))
+            self.log(1, f'Username {nick} has been accepted')
+            self.players.get(client_wire).username = nick
+            self.lobby.joins(self.players.get(client_wire))
+        
+        # inform the user
+        self.user_name_check(errors, client_wire)
 
     """
     Instructions
     """
 
-    def atender_sala_espera(self) -> None:
-        order_1 = Instructions.info_adv(self.lobby.j2.username)
-        order_2 = Instructions.info_adv(self.lobby.j1.username)
-        self.starken(order_1, self.lobby.j1.wire)
-        self.starken(order_2, self.lobby.j2.wire)
-        self.lobby.empieza_conteo()
+    def user_name_check(self, errors: list, client_wire: socket) -> None:
+        self.starken(Instructions.user_name_check(errors), client_wire)
 
     """
     Tasks

@@ -1,0 +1,14 @@
+Requests by end_point (rqst):
+
+user_name -> asks verifying of a username
+
+
+
+
+
+Instructions by sv (cmd):
+
+user_name_check (errors, valid) -> gives result of verifying a username
+opponent_name (name) -> informs username of opponent whilst in waiting room
+opponent_left -> informs that opponent left waiting room ¿game?
+remaining_time (time) -> informs of remaining time before game launches whilst in waiting room

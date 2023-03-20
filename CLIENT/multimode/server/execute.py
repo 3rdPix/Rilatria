@@ -1,5 +1,5 @@
 import sys
-from servidor import Server
+from server import Server
 import socket
 
 if __name__ == "__main__":

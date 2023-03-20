@@ -32,20 +32,31 @@ class GameWindow(QWidget):
         self.p2anel = self.player_2_panel()
 
         # No need to save these
-        board_panel = self.board_panel()
-        cards_panel = self.cards_panel()
-        store_panel = self.store_panel()
+        self.board_panel: QGroupBox = self.board_panel()
+        self.cards_panel: QGroupBox = self.cards_panel()
+        self.store_panel: QGroupBox = self.store_panel()
 
         # Window disrtribution
         grid = QGridLayout()
         grid.addWidget(self.p1anel, 1, 1, 8, 1)
-        grid.addWidget(board_panel, 1, 2, 6, 6)
+        grid.addWidget(self.board_panel, 1, 2, 6, 6)
         grid.addWidget(self.p2anel, 1, 8, 8, 1)
-        grid.addWidget(store_panel, 7, 2, 2, 4)
-        grid.addWidget(cards_panel, 7, 6, 2, 2)
+        grid.addWidget(self.store_panel, 7, 2, 2, 4)
+        grid.addWidget(self.cards_panel, 7, 6, 2, 2)
 
         self.background.setLayout(grid)
         self.background.setFixedSize(self.size())
+
+    def redo_text(self, lang: int) -> None:
+        self.set_text(lang)
+        self.board_panel.setTitle(self.text.get('field'))
+        self.cards_panel.setTitle(self.text.get('cards'))
+        self.store_panel.setTitle(self.text.get('store'))
+        self.item1.redo_text(self.text.get('item1'))
+        self.item2.redo_text(self.text.get('item2'))
+        self.item3.redo_text(self.text.get('item3'))
+        self.item4.redo_text(self.text.get('item4'))
+        self.item5.redo_text(self.text.get('item5'))
 
     def stylize_gui(self) -> None:
         im_back: QPixmap = QPixmap(pt.pic_gamewin_back)
@@ -116,29 +127,29 @@ class GameWindow(QWidget):
         store: QGroupBox = QGroupBox(title=self.text.get('store'))
         store.setMinimumSize(510, 130)
 
-        self.pawn = ItemSet(pt.pic_pawn, self.text.get('item1'), pt.pic_item_back,
+        self.item1 = ItemSet(pt.pic_pawn, self.text.get('item1'), pt.pic_item_back,
                        pt.pic_item_hover, pt.pic_item_click)
-        self.horse = ItemSet(pt.pic_horse, self.text.get('item2'), pt.pic_item_back,
+        self.item2 = ItemSet(pt.pic_horse, self.text.get('item2'), pt.pic_item_back,
                         pt.pic_item_hover, pt.pic_item_click)
-        self.bishop = ItemSet(pt.pic_bishop, self.text.get('item3'), pt.pic_item_back,
+        self.item3 = ItemSet(pt.pic_bishop, self.text.get('item3'), pt.pic_item_back,
                          pt.pic_item_hover, pt.pic_item_click)
-        self.rook = ItemSet(pt.pic_rook, self.text.get('item4'), pt.pic_item_back,
+        self.item4 = ItemSet(pt.pic_rook, self.text.get('item4'), pt.pic_item_back,
                        pt.pic_item_hover, pt.pic_item_click)
-        self.joker = ItemSet(pt.pic_joker, self.text.get('item5'), pt.pic_item_back,
+        self.item5 = ItemSet(pt.pic_joker, self.text.get('item5'), pt.pic_item_back,
                         pt.pic_item_hover, pt.pic_item_click)
 
         # total layout
         int_lay = QHBoxLayout()
         int_lay.addStretch(5)
-        int_lay.addWidget(self.pawn)
+        int_lay.addWidget(self.item1)
         int_lay.addStretch(1)
-        int_lay.addWidget(self.horse)
+        int_lay.addWidget(self.item2)
         int_lay.addStretch(1)
-        int_lay.addWidget(self.bishop)
+        int_lay.addWidget(self.item3)
         int_lay.addStretch(1)
-        int_lay.addWidget(self.rook)
+        int_lay.addWidget(self.item4)
         int_lay.addStretch(1)
-        int_lay.addWidget(self.joker)
+        int_lay.addWidget(self.item5)
         int_lay.addStretch(5)
 
         ext_lay = QVBoxLayout()

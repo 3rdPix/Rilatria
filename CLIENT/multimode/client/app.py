@@ -47,4 +47,8 @@ class Rilatria(QApplication):
             self.ft_login.username_error_message)
         pass
 
-    def update_default_lang(self, lang: int) -> None: self.lang = lang
+    def update_default_lang(self, lang: int) -> None:
+        self.lang = lang
+        self.ft_game.redo_text(lang)
+        with open('preset_app.json', 'w') as raw:
+            json.dump({"lang": self.lang}, raw)
