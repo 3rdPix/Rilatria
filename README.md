@@ -17,3 +17,6 @@ En la carpeta `Others` hay un directorio `playground` para escribir programas y 
 Los juegos se lanzan desde la *Sala de espera* cada 5 segundos cuando hay dos jugadores en ella. Más jugadores conectados llevan a la creación de una *Cola de espera*, instancia donde se espera que la *Sala de espera* se vacíe. No hay límite para la cantidad de jugadores en cola. A medida que se vaya vaciando la *Sala de espera* la *Cola de espera* irá avanzando. La sala de espera está preparada para cualquier tipo de desconexión.
 ![](Others/cola_espera1.jpg "Ejemplo 1")
 ![](Others/cola_espera2.jpg "Ejemplo 2")
+
+## Últimos comentarios del push
+- Se agregó un bloc de notas con los comandos de referencia para la comunicación entre servidor y cliente
