@@ -14,7 +14,11 @@ pic_rook: str = join('ft', 'art', 'pieces', '2300.png')
 pic_joker: str = join('ft', 'art', 'pieces', '2614.png')
 pic_stat_frame: str = join('ft', 'art', 'stat_back.png')
 
+pic_p1: str = join('ft', 'art', 'p1.png')
+pic_p2: str = join('ft', 'art', 'p2.png')
+
 pic_welwin_back: str = join('ft', 'art', 'block_background.jpg')
+pic_lobby_back: str = join('ft', 'art', 'lobby_back.jpg')
 pic_gamewin_back: str = join('ft', 'art', 'burning_houses.jpg')
 
 pic_item_back: str = join('ft', 'art', 'bg_items_shop.png')
@@ -31,6 +35,7 @@ pic_try: str = join('ft', 'art', 'cframe2.png')
 Styles
 """
 qss_welwin: str = join('ft', 'qss', 'log_in_window.qss')
+qss_lobbywin: str = join('ft', 'qss', 'lobby_window.qss')
 qss_gamewin: str = join('ft', 'qss', 'game_window.qss')
 
 """

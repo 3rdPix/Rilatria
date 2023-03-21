@@ -23,5 +23,11 @@
         "item3": "Spearman",
         "item4": "Rattletrap",
         "item5": "Joker"
+    },
+    "lobby_win":
+    {
+        "title": "Rilatria, the battle for a legacy",
+        "lobby_name": "Waiting room",
+        "information": "Avast ye! Hold yer horses fer a wee moment whilst we be seekin' a worthy foe"
     }
 }

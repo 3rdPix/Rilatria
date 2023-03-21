@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QApplication
 
 from ft.gamewin import GameWindow
 from ft.welcome_window import WelWin
+from ft.lobby_win import LobbyWin
 
 from bk.game_logic import ClientLogic
 
@@ -18,6 +19,7 @@ class Rilatria(QApplication):
 
         # Instance front
         self.ft_game: GameWindow = GameWindow(self.lang)
+        self.ft_lobby: LobbyWin = LobbyWin(self.lang)
         self.ft_login: WelWin = WelWin(self.lang)
 
         # Instance back
@@ -45,6 +47,12 @@ class Rilatria(QApplication):
         
         self.t_client.ant_login_error.connect(
             self.ft_login.username_error_message)
+        
+        self.t_client.ant_go_waiting.connect(
+            self.ft_lobby.launch)
+        
+        self.t_client.ant_go_waiting.connect(
+            self.ft_login.hide)
         pass
 
     def update_default_lang(self, lang: int) -> None:

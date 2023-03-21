@@ -9,3 +9,4 @@ class Signals(QObject):
     ant_show_login = pyqtSignal()
     ant_wire_error = pyqtSignal(Exception)
     ant_login_error = pyqtSignal(list)
+    ant_go_waiting = pyqtSignal(str)

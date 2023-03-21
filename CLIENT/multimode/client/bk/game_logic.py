@@ -45,7 +45,7 @@ class ClientLogic(Signals):
             except ConnectionAbortedError: break
 
     def read_instruction(self, cmd) -> None:
-        match cmd.get('comando'):
+        match cmd.get('cmd'):
             case 'user_name_check': self.receive_login(cmd)
 
     def starken(self, object) -> None:
@@ -59,8 +59,11 @@ class ClientLogic(Signals):
     def request_login(self, user: str) -> None:
         if not self.connected: self.create_connection()
         if self.connected: self.starken(Requests.user_name(user))
+        self.username = user
 
     def receive_login(self, instruction) -> None:
         if not instruction.get('valid'):
             self.ant_login_error.emit(instruction.get('errores'))
+            return
+        self.ant_go_waiting.emit(self.username)
         pass
