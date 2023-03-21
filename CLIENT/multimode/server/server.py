@@ -6,14 +6,15 @@ import threading
 
 class Server:
 
-
     def __init__(self, port: int, host: str) -> None:
+        super().__init__()
         print("Initializing Server...")
         self.host = host
         self.port = port
         self.sv_socket: socket = socket(AF_INET, SOCK_STREAM)
         self.players: dict[socket, Player] = dict()
-        self.lobby: WaitingRoom = WaitingRoom(count_start=10)
+        self.lobby = WaitingRoom(count_start=15, observer=self.start_game)
+        
         self.bind_and_listen()
         self.start_connections_thread()
 
@@ -64,7 +65,7 @@ class Server:
     def handle_disconnection(self, client_wire: socket) -> None:
         gone: Player = self.players.get(client_wire)
         self.log(1, f'Sudden disconnection at {gone.ip}')
-        if self.lobby.exists(gone): self.lobby.leaves(gone)
+        self.lobby.leaves(gone)
         del self.players[client_wire]
         del client_wire
 
@@ -117,3 +118,5 @@ class Server:
     """
     Tasks
     """
+    def start_game(self, players: tuple) -> None:
+        print(f'Starting game with {players[0]} and {players[1]}')

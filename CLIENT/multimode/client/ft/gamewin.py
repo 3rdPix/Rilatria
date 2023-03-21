@@ -13,7 +13,6 @@ class GameWindow(QWidget):
         self.set_text(lang)
         self.init_gui()
         self.stylize_gui()
-        self.show()
 
     def set_text(self, lang: int) -> None:
         match lang:
