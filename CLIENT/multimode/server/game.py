@@ -14,16 +14,17 @@ class Game:
         self.create_game_variables(players)
 
     def create_game_variables(self, players: tuple[User]) -> None:
-        self.player_1, self.player_2 = players
+        self.player_1 = players[0]
+        self.player_2 = players[1]
 
     """
     NETWORKING
     """
 
     def set_linsteners(self) -> None:
-        listener_1 = Thread(target=self.client_listen_thread, name='p1',
+        listener_1 = Thread(target=self.client_listen_thread, name=self.player_1.user_name,
                             args=[self.player_1], daemon=True)
-        listener_2 = Thread(target=self.client_listen_thread, name='p2',
+        listener_2 = Thread(target=self.client_listen_thread, name=self.player_2.user_name,
                             args=[self.player_2], daemon=True)
         listener_1.start()
         listener_2.start()
@@ -50,3 +51,4 @@ class Game:
     """
     TASKS
     """
+    
