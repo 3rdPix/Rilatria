@@ -1,3 +1,0 @@
- - Un determinado número de piezas inician en posiciones determinadas para asegurar movimientos en el campo
- - No se puede dar el último golpe con una pieza que no sea el héroe
- - piezas quitan 3 de vida

@@ -1,0 +1,34 @@
+{
+    "login_win":
+    {
+        "title": "Log into Rilatria, the battle for a legacy",
+        "advise": "Harken ye, oh valiant hero! Bear in mind that thy name shall be the very legacy that thou shalt leave behind, a tale of great renown and admiration. So choose thy appellation wisely ere ye venture forth into the world beyond.",
+        "name": "Hero name:",
+        "button": "Join the battle!",
+        "connection_error_title": "Error",
+        "connection_error": "We had an issue connecting to the server, please wait a few minutes and try again",
+        "name_error_title": "Username error",
+        "name_error": "We found these issues while trying to log in with that username:",
+        "name_void": "• No username was given\n",
+        "name_len": "• The length of the username is too long\n",
+        "name_existing": "• The username has already been taken\n"
+    },
+    "game_win":
+    {
+        "field": "Battle field",
+        "store": "Store",
+        "cards": "Cards",
+        "item1": "Barbarian",
+        "item2": "Horse rider",
+        "item3": "Spearman",
+        "item4": "Rattletrap",
+        "item5": "Joker",
+        "end_turn": "End turn"
+    },
+    "lobby_win":
+    {
+        "title": "Rilatria, the battle for a legacy",
+        "lobby_name": "Waiting room",
+        "information": "Avast ye! Hold yer horses fer a wee moment whilst we be seekin' a worthy foe"
+    }
+}

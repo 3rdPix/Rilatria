@@ -1,0 +1,25 @@
+QGroupBox {
+    font-family: RobotoCondensed;
+	font-size: 18px;
+	color: #fea601;
+	font-weight: bold;
+	text-align: right;
+}
+QLabel#StatLabel {
+    font-family: Roboto;
+	font-size: 15px;
+	color: #2f2f25;
+	font-weight: bold;
+}
+QLabel#ItemLabel {
+    color: #fcba03;
+    font-size: 14px;
+    font-family: 'Tahoma';
+    margin: 4px;
+}
+QLabel#Cell {
+	border: 1px solid #fcba03;
+}
+QLabel#Cell:hover {
+	background-color: #b3ffff;
+}
