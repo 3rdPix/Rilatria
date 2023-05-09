@@ -6,6 +6,6 @@ Estamos construyendo un sistema temporal basado en PyQt para ver el funcionamien
 
 ## Contenido
 El cliente se compone de tres ventanas. La sala de ingreso para conectarse al servidor por medio de un nombre de usuario. La sala de espera, donde el usuario permanece mientras el servidor le asigna un oponente. Y la sala de juego, donde se lleva a cabo el combate.
-![](Others/captura_ventana_login.png "Sala de ingreso")
-![](Others/captura_ventana_espera.png "Sala de espera")
-![](Others/captura_ventana_juego.png "Sala de juego")
+![](others/captura_ventana_login.png "Sala de ingreso")
+![](others/captura_ventana_espera.png "Sala de espera")
+![](others/captura_ventana_juego.png "Sala de juego")
