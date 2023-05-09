@@ -1,6 +1,6 @@
 Requests by end_point (rqst):
 
-user_name -> asks verifying of a username
+user_name (name) -> asks verifying of a username
 finish_turn -> informs that user finished turn
 
 
@@ -13,5 +13,5 @@ user_name_check (errors, valid) -> gives result of verifying a username
 opponent_name (name) -> informs the opponent name
 opponent_left -> informs that opponent left waiting room ¿game?
 show_game -> tells to show the game window
-turn_info (my)-> tells a player if its turn or not
+turn_change -> informs that turns changed
 cards_info -> shows the cards drawn

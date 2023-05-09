@@ -12,6 +12,7 @@ class ClientLogic(Signals):
         super().__init__(**kwargs)
         self.host = host
         self.port = port
+        self.my_turn: bool = False
 
     def launch(self) -> None:
         self.ant_show_login.emit()
@@ -49,7 +50,7 @@ class ClientLogic(Signals):
             case 'user_name_check': self.receive_login(cmd)
             case 'opponent_name': self.receive_opponent_name(cmd)
             case 'show_game': self.show_game()
-            case 'turn_info': self.define_turn(cmd)
+            case 'turn_change': self.change_turn()
 
     def starken(self, object) -> None:
         if not self.connected: return
@@ -77,19 +78,17 @@ class ClientLogic(Signals):
         pass
 
     def request_finish_turn(self) -> None:
-        print('I am requesting the end of my turn')
         self.starken(Requests.finish_turn())
 
     """
     Game
     """
     def receive_opponent_name(self, cmd: dict) -> None:
-        print('5 i know opponent name', cmd.get('name'))
         self.ant_opponent_name.emit(cmd.get('name'))
 
     def show_game(self) -> None:
         self.ant_show_game.emit()
-        print('6')
 
-    def define_turn(self, cmd: dict) -> None:
-        self.ant_my_turn.emit(cmd.get('my'))
+    def change_turn(self) -> None:
+        self.my_turn = not self.my_turn
+        self.ant_my_turn.emit(self.my_turn)
