@@ -47,6 +47,9 @@ class ClientLogic(Signals):
     def read_instruction(self, cmd) -> None:
         match cmd.get('cmd'):
             case 'user_name_check': self.receive_login(cmd)
+            case 'opponent_name': self.receive_opponent_name(cmd)
+            case 'show_game': self.show_game()
+            case 'turn_info': self.define_turn(cmd)
 
     def starken(self, object) -> None:
         if not self.connected: return
@@ -58,12 +61,35 @@ class ClientLogic(Signals):
     """
     def request_login(self, user: str) -> None:
         if not self.connected: self.create_connection()
-        if self.connected: self.starken(Requests.user_name(user))
+        print(user)
+        self.starken(Requests.user_name(user))
         self.username = user
 
     def receive_login(self, instruction) -> None:
         if not instruction.get('valid'):
-            self.ant_login_error.emit(instruction.get('errores'))
+            self.ant_login_error.emit(instruction.get('errors'))
             return
+        print('1')
         self.ant_go_waiting.emit(self.username)
+        print('2')
+        self.ant_me_name.emit(self.username)
+        print('3')
         pass
+
+    def request_finish_turn(self) -> None:
+        print('I am requesting the end of my turn')
+        self.starken(Requests.finish_turn())
+
+    """
+    Game
+    """
+    def receive_opponent_name(self, cmd: dict) -> None:
+        print('5 i know opponent name', cmd.get('name'))
+        self.ant_opponent_name.emit(cmd.get('name'))
+
+    def show_game(self) -> None:
+        self.ant_show_game.emit()
+        print('6')
+
+    def define_turn(self, cmd: dict) -> None:
+        self.ant_my_turn.emit(cmd.get('my'))

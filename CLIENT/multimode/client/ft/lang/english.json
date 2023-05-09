@@ -22,7 +22,8 @@
         "item2": "Horse rider",
         "item3": "Spearman",
         "item4": "Rattletrap",
-        "item5": "Joker"
+        "item5": "Joker",
+        "end_turn": "End turn"
     },
     "lobby_win":
     {

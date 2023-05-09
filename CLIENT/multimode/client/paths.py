@@ -25,6 +25,10 @@ pic_item_back: str = join('ft', 'art', 'bg_items_shop.png')
 pic_item_hover: str = join('ft', 'art', 'bg_items_shop_on.jpg')
 pic_item_click: str = join('ft', 'art', 'bg_square_red.jpg')
 
+pic_turn_back: str = join('ft', 'art', 'btn_yellow_normal.png')
+pic_turn_hover: str = join('ft', 'art', 'btn_yellow_over.png')
+pic_turn_press: str = join('ft', 'art', 'btn_yellow_pressed.png')
+
 pic_spanish: str = join('ft', 'art', 'lang', 'spanish.png')
 pic_english: str = join('ft', 'art', 'lang', 'english.png')
 pic_french: str = join('ft', 'art', 'lang', 'french.png')

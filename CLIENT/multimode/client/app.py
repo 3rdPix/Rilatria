@@ -53,7 +53,24 @@ class Rilatria(QApplication):
         
         self.t_client.ant_go_waiting.connect(
             self.ft_login.hide)
-        pass
+        
+        self.t_client.ant_me_name.connect(
+            self.ft_game.me_name)
+        
+        self.t_client.ant_opponent_name.connect(
+            self.ft_game.opponent_name)
+        
+        self.t_client.ant_show_game.connect(
+            self.ft_game.show)
+        
+        self.t_client.ant_show_game.connect(
+            self.ft_lobby.hide)
+        
+        self.t_client.ant_my_turn.connect(
+            self.ft_game.my_turn)
+        
+        self.ft_game.btn.clicked.connect(
+            self.t_client.request_finish_turn)
 
     def update_default_lang(self, lang: int) -> None:
         self.lang = lang

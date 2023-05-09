@@ -1,7 +1,21 @@
+from dataclasses import dataclass
 from socket import socket
 from threading import Lock
 from random import randint as rint
 
+
+@dataclass
+class User:
+    ip: str
+    wire: socket
+    controller: Lock = Lock()
+    username: str = None
+    player = None
+    sv_listen = True
+
+    def __repr__(self) -> str:
+        return f'Player {self.username}'
+    
 class Player:
     
     def __init__(self, ant_death) -> None:
@@ -11,17 +25,16 @@ class Player:
         self._luck: int = 2
         self._coins: int = 2
 
-    """
-    PUBLIC
-    """
     def is_alive(self) -> bool:
         if self.health < 1: return False
         if self.coins < 1 and self.luck < 1: return False
         return True
     
-    """
-    PROPERTIES
-    """
+    def won(self) -> bool:
+        if self.health == 10 and self.luck == 10: return True
+        if self.honor == 10 and self.coins == 10: return True
+        return False
+    
     def get_health(self): return self._health
     def set_health(self, new_val):
         if new_val < 0: self._health = 0
@@ -50,9 +63,6 @@ class Player:
         else: self._coins = new_val
     coins = property(get_coins, set_coins)
 
-    """
-    METHODS
-    """
     def chain_effects(self) -> None:
         if self.health > 5: self.coins -= 1
         if self.honor > 5:
@@ -65,19 +75,40 @@ class Player:
             else: self.health -= 1
         if self.coins > 5: self.honor -= 1
 
+class Card:
+    health: int = 0
+    honor: int = 0
+    luck: int = 0
+    coins: int = 0
 
-class User:
 
-    def __init__(self, wire: socket, id: int) -> None:
-        self.wire: socket = wire
-        self.id: int = id
-        self.controller: Lock = Lock()
-        self.player: Player = Player(id)
-        self.user_name: str = ''
+class Deck:
 
-    def __str__(self) -> str:
-        return f'User {self.id}:{self.user_name}' if self.user_name != '' else \
-        f'User {self.id}:NaN'
+    @staticmethod
+    def draw(number: int) -> tuple:
+        cards: list = list()
+        for times in range(number): cards.append(Deck.get_new_card())
+        return tuple(cards)
     
-    def __repr__(self) -> str:
-        return self.__str__()
+    @staticmethod
+    def get_new_card() -> Card:
+        new_card = Card()
+        element1 = rint(1, 4)
+        val1 = rint(-3, 3)
+        match element1:
+            case 1: new_card.health = val1
+            case 2: new_card.honor = val1
+            case 3: new_card.luck = val1
+            case 4: new_card.coins = val1
+        
+        element2 = rint(1, 4)
+        while element1 == element2: element2 = rint(1, 4)
+        if val1 > 0: val2 = rint(-3, 0)
+        elif val1 <= 0: val2 = rint(0, 3)
+        match element2:
+            case 1: new_card.health = val2
+            case 2: new_card.honor = val2
+            case 3: new_card.luck = val2
+            case 4: new_card.coins = val2
+        return new_card
+    

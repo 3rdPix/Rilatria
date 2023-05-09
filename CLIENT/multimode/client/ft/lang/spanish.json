@@ -13,6 +13,11 @@
         "name_len": "• El nombre de usuario es demasiado largo\n",
         "name_existing": "• El nombre de usuario ya está en uso\n"
     },
+    "lobby_win": {
+        "title": "Rilatria, la batalla de un legado",
+        "lobby_name": "Sala de espera",
+        "information": "Estamos en busca de un oponente digno... aguarda un momento"
+    },
     "game_win":
     {
         "field": "Campo de batalla",

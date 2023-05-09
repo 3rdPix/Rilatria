@@ -102,9 +102,12 @@ class WelWin(QWidget):
         with open(pt.qss_welwin, 'r') as css: self.setStyleSheet(css.read())
 
     def connect_events(self) -> None:
-        self.play_bt.clicked.connect(lambda:
-            self.ant_request_login.emit(self.username_textbox.text()))
+        self.play_bt.clicked.connect(self.request_login)
         self.lang_selec.currentIndexChanged.connect(self.redo_text)
+
+    def request_login(self) -> None:
+        string = self.username_textbox.text()
+        self.ant_request_login.emit(string)
 
     def redo_text(self, lang: int) -> None:
         self.set_text(lang)

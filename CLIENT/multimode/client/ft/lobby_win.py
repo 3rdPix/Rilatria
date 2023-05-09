@@ -143,6 +143,5 @@ class LobbyWin(QWidget):
         msg.exec_()
 
     def launch(self, name: str) -> None:
-        print('intenté abrir lobby')
         self.p_name.setText(name)
         self.show()

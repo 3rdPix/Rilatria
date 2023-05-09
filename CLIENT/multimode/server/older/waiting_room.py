@@ -1,5 +1,9 @@
+from threading import Thread, Lock
+from itertools import count
 from entities import User
-from threading import Lock, Thread
+from time import sleep
+from net_logics import Router, Cmd
+from PyQt5.QtCore import pyqtSignal
 
 
 class Node:
@@ -7,6 +11,7 @@ class Node:
     def __init__(self, value: User=None):
         self.value: User|None = value
         self.next: User|None= None
+
 
 class WaitingRoomQueue:
 
@@ -26,6 +31,7 @@ class WaitingRoomQueue:
             self.last.next = new
             self.last = self.last.next
         self.controller.release()
+        print(self)
     
     def call_next(self) -> User|None:
         self.controller.acquire()
@@ -50,6 +56,7 @@ class WaitingRoomQueue:
         return counter
     
     def call_two(self) -> tuple[User]|None:
+        print('Queue: getting the two')
         self.controller.acquire()
         
         # not enough players
@@ -70,6 +77,7 @@ class WaitingRoomQueue:
         self.controller.release()
         del old_first
         del old_first2
+        print(self)
         return (p1, p2)
     
     def leaves(self, value: User) -> None:
@@ -109,32 +117,44 @@ class WaitingRoomQueue:
             current = current.next
         self.controller.release()
         return string + "\n-----"
-    
+
 class WaitingRoom:
 
     queue = WaitingRoomQueue()
     controller = Lock()
 
-    def __init__(self, observer) -> None:
+    def __init__(self, count_start: int, observer) -> None:
+        super().__init__()
         self.observer = observer
+        self.present_players: list[User] = list()
 
     def joins(self, player: User) -> None:
         self.queue.add(player)
-        launcher = Thread(target=self.launch_game, daemon=True)
-        launcher.start()
-        return
-
-    def launch_game(self) -> None:
         self.controller.acquire()
+        self.present_players.append(player)
+        self.controller.release()
+        self.launch_with_two()
+
+    def leaves(self, player: User) -> None:
+        self.controller.acquire()
+        self.queue.leaves(player)
+        self.present_players.remove(player)
+        self.controller.release()
+
+    def launch_with_two(self) -> None:
+        print('Trying to launch with two')
         players = self.queue.call_two()
         if not players:
-            self.controller.release()
+            print('not enough players')
             return
+        self.controller.acquire()
+        self.present_players.remove(players[0])
+        self.present_players.remove(players[1])
         self.controller.release()
-        starter = Thread(target=self.observer, args=(players, ), daemon=True)
-        starter.start()
-        return
-    
+        print(players)
+        return self.observer(players)
+        print('observer called')
+
+
     def __repr__(self) -> str:
         return self.queue.__repr__()
-    

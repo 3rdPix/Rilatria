@@ -15,5 +15,5 @@ if __name__ == "__main__":
         print("Shutting Down...".center(80, " "))
         print("".center(82, "-"))
         print("".center(82, "-") + "\n")
-        server.sv_socket.close()
+        server.server_socket.close()
         sys.exit()

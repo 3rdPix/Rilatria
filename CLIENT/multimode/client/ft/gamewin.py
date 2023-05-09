@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
     QLabel, QGridLayout
 from PyQt5.QtGui import QPixmap
-from ft.boxes import StatSet, ItemSet
+from ft.boxes import StatSet, ItemSet, TurnSet
 from ft.board import Board
 import paths as pt
 import json
@@ -31,19 +31,42 @@ class GameWindow(QWidget):
         self.p2anel = self.player_2_panel()
 
         # No need to save these
-        self.board_panel: QGroupBox = self.board_panel()
-        self.cards_panel: QGroupBox = self.cards_panel()
-        self.store_panel: QGroupBox = self.store_panel()
+        self.board_panel: QGroupBox = self.create_board_panel()
+        self.cards_panel: QGroupBox = self.create_cards_panel()
+        self.store_panel: QGroupBox = self.create_store_panel()
+        self.turn_panel: QGroupBox = self.create_turn_panel()
 
         # Window disrtribution
-        grid = QGridLayout()
-        grid.addWidget(self.p1anel, 1, 1, 8, 1)
-        grid.addWidget(self.board_panel, 1, 2, 6, 6)
-        grid.addWidget(self.p2anel, 1, 8, 8, 1)
-        grid.addWidget(self.store_panel, 7, 2, 2, 4)
-        grid.addWidget(self.cards_panel, 7, 6, 2, 2)
+        windows_layout = QHBoxLayout()
+        windows_layout.addWidget(self.p1anel)
+        windows_layout.addStretch()
+        
+        center_layout = QVBoxLayout()
+        center_layout.addWidget(self.board_panel)
+        
+        center_bot_layout = QHBoxLayout()
+        center_bot_layout.addWidget(self.store_panel)
+        center_bot_layout.addStretch()
+        center_bot_layout.addWidget(self.cards_panel)
+        center_bot_layout.addStretch()
+        center_bot_layout.addWidget(self.turn_panel)
+        center_layout.addLayout(center_bot_layout)
+        windows_layout.addLayout(center_layout)
 
-        self.background.setLayout(grid)
+        windows_layout.addStretch()
+        windows_layout.addWidget(self.p2anel)
+        
+
+        # row, col, row_s, col_s
+        # grid = QGridLayout()
+        # grid.addWidget(self.p1anel, 1, 1, 8, 1)
+        # grid.addWidget(self.board_panel, 1, 2, 6, 7)
+        # grid.addWidget(self.p2anel, 1, 9, 8, 1)
+        # grid.addWidget(self.store_panel, 7, 2, 2, 4)
+        # grid.addWidget(self.cards_panel, 7, 6, 2, 2)
+        # grid.addWidget(self.turn_panel, 8, 8, 2, 1)
+
+        self.background.setLayout(windows_layout)
         self.background.setFixedSize(self.size())
 
     def redo_text(self, lang: int) -> None:
@@ -65,7 +88,7 @@ class GameWindow(QWidget):
         with open(pt.qss_gamewin, 'r') as raw: style = raw.read()
         self.setStyleSheet(style)
 
-    def cards_panel(self) -> QGroupBox:
+    def create_cards_panel(self) -> QGroupBox:
 
         cards_panel = QGroupBox(title=self.text.get('cards'))
 
@@ -105,7 +128,26 @@ class GameWindow(QWidget):
         cards_panel.setLayout(ext_lay)
         return cards_panel
     
-    def board_panel(self) -> QGroupBox:
+    def create_turn_panel(self) -> QGroupBox:
+        v_box = QVBoxLayout()
+        self.btn = TurnSet(self.text.get('end_turn'), pt.pic_turn_back,
+                      pt.pic_turn_hover, pt.pic_turn_press)
+        # total
+        h_box = QHBoxLayout()
+        h_box.addStretch()
+        h_box.addWidget(self.btn)
+        h_box.addStretch()
+
+        v_box.addStretch()
+        v_box.addLayout(h_box)
+        v_box.addStretch()
+
+        box = QGroupBox()
+        box.setLayout(v_box)
+        box.setMaximumWidth(115)
+        return box
+
+    def create_board_panel(self) -> QGroupBox:
         box = QGroupBox(title=self.text.get('field'))
         self.board = Board()
         v_box = QVBoxLayout()
@@ -122,7 +164,7 @@ class GameWindow(QWidget):
         box.setLayout(v_box)
         return box 
 
-    def store_panel(self) -> QGroupBox:
+    def create_store_panel(self) -> QGroupBox:
         store: QGroupBox = QGroupBox(title=self.text.get('store'))
         store.setMinimumSize(510, 130)
 
@@ -199,8 +241,20 @@ class GameWindow(QWidget):
     
     def launch(self, username: str) -> None:
         self.p1anel.setTitle(username)
-        self.show()
 
     def resizeEvent(self, event) -> None:
         self.background.setFixedSize(self.size())
         return super().resizeEvent(event)
+    
+    """
+    Reception
+    """
+    def me_name(self, name: str) -> None:
+        self.p1anel.setTitle(name)
+
+    def opponent_name(self, name: str) -> None:
+        self.p2anel.setTitle(name)
+
+    def my_turn(self, my: bool) -> None:
+        self.btn.setEnabled(my)
+

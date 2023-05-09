@@ -65,3 +65,10 @@ class Requests:
             'name': name
         }
         return order
+    
+    @staticmethod
+    def finish_turn() -> dict:
+        order = {
+            'request': 'finish_turn'
+        }
+        return order

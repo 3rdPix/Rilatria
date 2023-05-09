@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 
 
 class StatSet(QVBoxLayout):
@@ -94,4 +94,54 @@ class ItemSet(QLabel):
 
     def mouseReleaseEvent(self, event) -> None:
         self.setPixmap(self.hover_back)
+        return super().mouseReleaseEvent(event)
+    
+class TurnSet(QLabel):
+
+    clicked = pyqtSignal()
+
+    def __init__(self, name: str, background_path: str,
+                 hover_path: str, click_back_path: str, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.non_hover_back = QPixmap(background_path)
+        self.hover_back = QPixmap(hover_path)
+        self.click_back = QPixmap(click_back_path)
+        self.setPixmap(self.non_hover_back)
+        self.setScaledContents(True)
+        self.set_content(name)
+        self.setFixedSize(86, 40)
+
+    def set_content(self, name: str) -> None:
+        content_lay = QVBoxLayout()
+        content_lay.addStretch()
+
+        self.name_label = QLabel(text=name)
+        self.name_label.setWordWrap(True)
+        self.name_label.setObjectName('StatLabel')
+        bot = QHBoxLayout()
+        bot.addStretch()
+        bot.addWidget(self.name_label)
+        bot.addStretch()
+        content_lay.addLayout(bot)
+        content_lay.addStretch()
+        self.setLayout(content_lay)
+
+    def redo_text(self, name: str) -> None:
+        self.name_label.setText(name)
+
+    def enterEvent(self, event) -> None:
+        self.setPixmap(self.hover_back)
+        return super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        self.setPixmap(self.non_hover_back)
+        return super().leaveEvent(event)
+
+    def mousePressEvent(self, event) -> None:
+        if event.button() == Qt.LeftButton: self.setPixmap(self.click_back)
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event) -> None:
+        self.setPixmap(self.hover_back)
+        if self.underMouse(): self.clicked.emit()
         return super().mouseReleaseEvent(event)
