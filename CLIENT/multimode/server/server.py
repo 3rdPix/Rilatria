@@ -111,4 +111,5 @@ class Server:
         # create a new game
         new_game = Game(players, next(self._games_counter))
         self.active_games[new_game.id] = new_game
+        new_game.start() # might be deleted
         pass

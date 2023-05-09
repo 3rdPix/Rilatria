@@ -10,6 +10,7 @@ class Player:
         self._honor: int = 2
         self._luck: int = 2
         self._coins: int = 2
+        self.my_turn: bool = False
 
     """
     PUBLIC
@@ -66,13 +67,13 @@ class Player:
         if self.coins > 5: self.honor -= 1
 
 
-class User:
+class User(Player):
 
     def __init__(self, wire: socket, id: int) -> None:
+        super().__init__(print)
         self.wire: socket = wire
         self.id: int = id
         self.controller: Lock = Lock()
-        self.player: Player = Player(id)
         self.user_name: str = ''
 
     def __str__(self) -> str:

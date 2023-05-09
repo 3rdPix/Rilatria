@@ -110,6 +110,7 @@ class TurnSet(QLabel):
         self.setScaledContents(True)
         self.set_content(name)
         self.setFixedSize(86, 40)
+        self.setEnabled(False)
 
     def set_content(self, name: str) -> None:
         content_lay = QVBoxLayout()
@@ -145,3 +146,6 @@ class TurnSet(QLabel):
         self.setPixmap(self.hover_back)
         if self.underMouse(): self.clicked.emit()
         return super().mouseReleaseEvent(event)
+    
+    def setEnabled(self, a0: bool) -> None:
+        return super().setEnabled(a0)

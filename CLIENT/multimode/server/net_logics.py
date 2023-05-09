@@ -159,9 +159,5 @@ class Cmd:
         return order
 
     @staticmethod
-    def turn_info(yours: bool) -> dict:
-        order = {
-            'cmd': 'turn_info',
-            'my': yours
-        }
-        return order
+    def turn_change() -> dict:
+        return {'cmd': 'turn_change'}

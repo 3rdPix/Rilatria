@@ -256,5 +256,6 @@ class GameWindow(QWidget):
         self.p2anel.setTitle(name)
 
     def my_turn(self, my: bool) -> None:
+        print(my)
         self.btn.setEnabled(my)
 
