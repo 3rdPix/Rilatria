@@ -1,4 +1,4 @@
-from entities import User
+from entities import User, Deck, Card
 from threading import Thread, Lock, current_thread
 from socket import socket
 from net_logics import Router, Cmd
@@ -19,6 +19,7 @@ class Game:
         self.players: dict[str, User] = {
             self.player_1.user_name : self.player_1,
             self.player_2.user_name : self.player_2}
+        self._current_card_options: list[Card] = list()
 
     """
     PROPERTIES
@@ -75,8 +76,8 @@ class Game:
         Router.starken(cmd, self.player_1)
         Router.starken(cmd, self.player_2)
 
-    def show_init_stats(self) -> None:
-        # Sends the information with initial stats of/for both players
+    def update_stats(self) -> None:
+        # Sends the information with stats of/for both players
 
         # p1 -> p1
         Router.starken(Cmd.stat_update('health', self.player_1.health, True), self.player_1)
@@ -102,14 +103,36 @@ class Game:
         Router.starken(Cmd.stat_update('luck', self.player_2.luck, False), self.player_1)
         Router.starken(Cmd.stat_update('coins', self.player_2.coins, False), self.player_1)
 
-
+    def show_cards(self) -> None:
+        sendable = list()
+        for each in self._current_card_options:
+            option = {
+                'health': each.health,
+                'honor': each.honor,
+                'luck': each.luck,
+                'coins': each.coins
+            }
+            sendable.append(option)
+        Router.starken(Cmd.show_cards(sendable), self.player_1)
+        Router.starken(Cmd.show_cards(sendable), self.player_2)
+        
     """
     TASKS
     """
     def start(self) -> None:
-        # Inform the basic stats
-        self.show_init_stats()
+        # Inform the initial stats
+        self.update_stats()
 
+        # Player 1 starts the game
         self.player_1.my_turn = not self.player_1.my_turn
         Router.starken(Cmd.turn_change(), self.player_1)
         self.set_linsteners()
+
+    def reserva_stage(self) -> None:
+        if 
+
+    def cards_stage(self) -> dict:
+        self._current_card_options = list()
+        for _ in range(3):
+            self._current_card_options.append(Deck.draw())
+        self.show_cards()

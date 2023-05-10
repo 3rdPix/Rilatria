@@ -37,15 +37,18 @@ class Server:
 
     def accept_connections(self) -> None:
         print('Server accepting connections.')
-        while True:
-            client_wire, (client_addrs, client_port) = self.server_socket.accept()
-            new_user = User(client_wire, next(self._user_counter),
-                            parameters=self.parameters.get('player_stats'))
-            self.connected_users[new_user.id] = new_user
-            listener = Thread(target=self.client_listen_login,
-                              args=[new_user], daemon=True)
-            listener.start()
-            print(f'Connected to new user at {client_addrs}:{client_port}')
+        try:    
+            while True:
+                client_wire, (client_addrs, client_port) = self.server_socket.accept()
+                new_user = User(client_wire, next(self._user_counter),
+                                parameters=self.parameters.get('player_stats'))
+                self.connected_users[new_user.id] = new_user
+                listener = Thread(target=self.client_listen_login,
+                                args=[new_user], daemon=True)
+                listener.start()
+                print(f'Connected to new user at {client_addrs}:{client_port}')
+        except OSError:
+            print("Server was closed. Can't accept new clients")
 
     def client_listen_login(self, user: User) -> None:
         try:

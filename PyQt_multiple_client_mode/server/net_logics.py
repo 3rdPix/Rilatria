@@ -160,6 +160,14 @@ class Cmd:
             'mine': mine
         }
         return order
+    
+    @staticmethod
+    def show_cards(cards: list[dict]) -> dict:
+        order = {
+            'cmd': 'show_cards',
+            'cards': cards
+        }
+        return order
 
     @staticmethod
     def opponent_left() -> dict:

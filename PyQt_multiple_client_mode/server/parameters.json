@@ -2,9 +2,9 @@
     "player_stats":
     {
         "init_health": 6,
-        "init_honor": 2,
+        "init_honor": 4,
         "init_luck": 2,
-        "init_coins": 2,
+        "init_coins": 3,
         "max_health": 10,
         "max_honor": 10,
         "max_luck": 10,
