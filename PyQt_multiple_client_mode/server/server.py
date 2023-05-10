@@ -5,6 +5,7 @@ from threading import Thread
 from net_logics import Router, Cmd
 from waiting_room import WaitingRoom
 from game import Game
+import json
 
 
 class Server:
@@ -14,6 +15,8 @@ class Server:
     _games_counter = count(start=1)
     connected_users: dict[int, User] = {}
     active_games: dict[int, Game]= {}
+    with open('parameters.json', mode='r', encoding='utf-8') as raw:
+        parameters = json.load(raw)
 
     def __init__(self, host: str, port: int) -> None:
         print('Initializing Server...')
@@ -36,7 +39,8 @@ class Server:
         print('Server accepting connections.')
         while True:
             client_wire, (client_addrs, client_port) = self.server_socket.accept()
-            new_user = User(client_wire, next(self._user_counter))
+            new_user = User(client_wire, next(self._user_counter),
+                            parameters=self.parameters.get('player_stats'))
             self.connected_users[new_user.id] = new_user
             listener = Thread(target=self.client_listen_login,
                               args=[new_user], daemon=True)

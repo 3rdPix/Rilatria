@@ -75,10 +75,40 @@ class Game:
         Router.starken(cmd, self.player_1)
         Router.starken(cmd, self.player_2)
 
+    def show_init_stats(self) -> None:
+        # Sends the information with initial stats of/for both players
+
+        # p1 -> p1
+        Router.starken(Cmd.stat_update('health', self.player_1.health, True), self.player_1)
+        Router.starken(Cmd.stat_update('honor', self.player_1.honor, True), self.player_1)
+        Router.starken(Cmd.stat_update('luck', self.player_1.luck, True), self.player_1)
+        Router.starken(Cmd.stat_update('coins', self.player_1.coins, True), self.player_1)
+
+        # p1 -> p2
+        Router.starken(Cmd.stat_update('health', self.player_1.health, False), self.player_2)
+        Router.starken(Cmd.stat_update('honor', self.player_1.honor, False), self.player_2)
+        Router.starken(Cmd.stat_update('luck', self.player_1.luck, False), self.player_2)
+        Router.starken(Cmd.stat_update('coins', self.player_1.coins, False), self.player_2)
+
+        # p2 -> p2
+        Router.starken(Cmd.stat_update('health', self.player_2.health, True), self.player_2)
+        Router.starken(Cmd.stat_update('honor', self.player_2.honor, True), self.player_2)
+        Router.starken(Cmd.stat_update('luck', self.player_2.luck, True), self.player_2)
+        Router.starken(Cmd.stat_update('coins', self.player_2.coins,  True), self.player_2)
+
+        # p2 -> p1
+        Router.starken(Cmd.stat_update('health', self.player_2.health, False), self.player_1)
+        Router.starken(Cmd.stat_update('honor', self.player_2.honor, False), self.player_1)
+        Router.starken(Cmd.stat_update('luck', self.player_2.luck, False), self.player_1)
+        Router.starken(Cmd.stat_update('coins', self.player_2.coins, False), self.player_1)
+
+
     """
     TASKS
     """
     def start(self) -> None:
+        # Inform the basic stats
+        self.show_init_stats()
 
         self.player_1.my_turn = not self.player_1.my_turn
         Router.starken(Cmd.turn_change(), self.player_1)

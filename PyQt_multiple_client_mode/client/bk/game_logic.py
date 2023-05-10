@@ -51,11 +51,19 @@ class ClientLogic(Signals):
             case 'opponent_name': self.receive_opponent_name(cmd)
             case 'show_game': self.show_game()
             case 'turn_change': self.change_turn()
+            case 'stat_update': self.receive_stat_update(cmd)
 
     def starken(self, object) -> None:
         if not self.connected: return
         msg = Router.codificar_bytes(object)
         self.t_socket.sendall(msg)
+
+
+    """
+    INSTRUCTIONS
+    """
+    def receive_stat_update(self, details: dict) -> None:
+        self.ant_update_stat.emit(details)
 
     """
     Login

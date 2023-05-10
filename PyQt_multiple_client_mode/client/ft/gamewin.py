@@ -249,7 +249,7 @@ class GameWindow(QWidget):
     """
     Reception
     """
-    def me_name(self, name: str) -> None:
+    def my_name(self, name: str) -> None:
         self.p1anel.setTitle(name)
 
     def opponent_name(self, name: str) -> None:
@@ -258,4 +258,19 @@ class GameWindow(QWidget):
     def my_turn(self, my: bool) -> None:
         print(my)
         self.btn.setEnabled(my)
+
+    def stat_update(self, details: dict) -> None:
+        val = details.get('new_val')
+        if details.get('mine'):
+            match details.get('stat'):
+                case 'health': self.p1_HP.set_value(val)
+                case 'honor': self.p1_VP.set_value(val)
+                case 'luck': self.p1_LP.set_value(val)
+                case 'coins': self.p1_CP.set_value(val)
+        else:
+            match details.get('stat'):
+                case 'health': self.p2_HP.set_value(val)
+                case 'honor': self.p2_VP.set_value(val)
+                case 'luck': self.p2_LP.set_value(val)
+                case 'coins': self.p2_CP.set_value(val)
 

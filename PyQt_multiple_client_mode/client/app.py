@@ -55,7 +55,7 @@ class Rilatria(QApplication):
             self.ft_login.hide)
         
         self.t_client.ant_me_name.connect(
-            self.ft_game.me_name)
+            self.ft_game.my_name)
         
         self.t_client.ant_opponent_name.connect(
             self.ft_game.opponent_name)
@@ -71,6 +71,9 @@ class Rilatria(QApplication):
         
         self.ft_game.btn.clicked.connect(
             self.t_client.request_finish_turn)
+        
+        self.t_client.ant_update_stat.connect(
+            self.ft_game.stat_update)
 
     def update_default_lang(self, lang: int) -> None:
         self.lang = lang

@@ -14,4 +14,5 @@ opponent_name (name) -> informs the opponent name
 opponent_left -> informs that opponent left waiting room ¿game?
 show_game -> tells to show the game window
 turn_change -> informs that turns changed
+stat_update (stat, new_value) -> indicates the new value of stat
 cards_info -> shows the cards drawn

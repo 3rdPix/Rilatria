@@ -1,0 +1,23 @@
+{
+    "player_stats":
+    {
+        "init_health": 6,
+        "init_honor": 2,
+        "init_luck": 2,
+        "init_coins": 2,
+        "max_health": 10,
+        "max_honor": 10,
+        "max_luck": 10,
+        "max_coins": 10,
+        "limit_health": 6,
+        "limit_honor": 6,
+        "limit_luck": 6,
+        "limit_coins": 6,
+        "loss_coins_by_health": 1,
+        "gain_health_by_honor": 1,
+        "gain_coins_by_luck": 1,
+        "gain_health_by_luck": 1,
+        "loss_health_by_luck": 1,
+        "loss_honor_by_coins": 1
+    }
+}

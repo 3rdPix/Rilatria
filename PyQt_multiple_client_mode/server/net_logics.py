@@ -150,6 +150,16 @@ class Cmd:
     @staticmethod
     def show_game() -> dict:
         return {'cmd': 'show_game'}
+    
+    @staticmethod
+    def stat_update(stat: str, new_val: int, mine: bool) -> dict:
+        order = {
+            'cmd': 'stat_update',
+            'stat': stat,
+            'new_val': new_val,
+            'mine': mine
+        }
+        return order
 
     @staticmethod
     def opponent_left() -> dict:

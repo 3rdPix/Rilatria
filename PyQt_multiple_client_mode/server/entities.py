@@ -4,12 +4,13 @@ from random import randint as rint
 
 class Player:
     
-    def __init__(self, ant_death) -> None:
+    def __init__(self, ant_death, parameters) -> None:
         self.death = ant_death
-        self._health: int = 6
-        self._honor: int = 2
-        self._luck: int = 2
-        self._coins: int = 2
+        self.parameters = parameters
+        self._health: int = self.parameters.get('init_health')
+        self._honor: int = self.parameters.get('init_honor')
+        self._luck: int = self.parameters.get('init_luck')
+        self._coins: int = self.parameters.get('init_coins')
         self.my_turn: bool = False
 
     """
@@ -26,28 +27,32 @@ class Player:
     def get_health(self): return self._health
     def set_health(self, new_val):
         if new_val < 0: self._health = 0
-        elif new_val > 10: self._health = 10
+        elif new_val > self.parameters.get('max_health'):
+            self._health = self.parameters.get('max_health')
         else: self._health = new_val
     health = property(get_health, set_health)
 
     def get_honor(self): return self._honor
     def set_honor(self, new_val):
         if new_val < 0: self._honor4 = 0
-        elif new_val > 10: self._honor = 10
+        elif new_val > self.parameters.get('max_honor'):
+            self._honor = self.parameters.get('max_honor')
         else: self._honor = new_val
     honor = property(get_honor, set_honor)
 
     def get_luck(self): return self._luck
     def set_luck(self, new_val):
         if new_val < 0: self._luck = 0
-        elif new_val > 10: self._luck = 10
+        elif new_val > self.parameters.get('max_luck'):
+            self._luck = self.parameters.get('max_luck')
         else: self._luck = new_val
     luck = property(get_luck, set_luck)
 
     def get_coins(self): return self._coins
     def set_coins(self, new_val):
         if new_val < 0: self._coins = 0
-        elif new_val > 10: self._coins = 10
+        elif new_val > self.parameters.get('max_coins'):
+            self._coins = self.parameters.get('max_coins')
         else: self._coins = new_val
     coins = property(get_coins, set_coins)
 
@@ -55,22 +60,26 @@ class Player:
     METHODS
     """
     def chain_effects(self) -> None:
-        if self.health > 5: self.coins -= 1
-        if self.honor > 5:
-            self.health += 1
-            if self.honor == 10: self.health += 1
-        if self.luck > 5:
+        if self.health > self.parameters.get('limit_health'):
+            self.coins -= self.parameters.get('loss_coins_by_health')
+        if self.honor > self.parameters.get('limit_honor'):
+            self.health += self.parameters.get('gain_health_by_honor')
+            if self.honor == self.parameters.get('max_honor'):
+                self.health += self.parameters.get('gain_health_by_honor')
+        if self.luck > self.parameters.get('limit_luck'):
             if rint(1, 2) == 1:
-                self.coins += 1
-                if self.luck == 10: self.health += 1
-            else: self.health -= 1
-        if self.coins > 5: self.honor -= 1
+                self.coins += self.parameters.get('gain_coins_by_luck')
+                if self.luck == self.parameters.get('limit_luck'):
+                    self.health += self.parameters.get('gain_health_by_luck')
+            else: self.health -= self.parameters.get('loss_health_by_luck')
+        if self.coins > self.parameters.get('limit_coins'):
+            self.honor -= self.parameters.get('loss_honor_by_coins')
 
 
 class User(Player):
 
-    def __init__(self, wire: socket, id: int) -> None:
-        super().__init__(print)
+    def __init__(self, wire: socket, id: int, **kwargs) -> None:
+        super().__init__(print, **kwargs)
         self.wire: socket = wire
         self.id: int = id
         self.controller: Lock = Lock()

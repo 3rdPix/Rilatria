@@ -15,3 +15,4 @@ class Signals(QObject):
     ant_show_game = pyqtSignal()
 
     ant_my_turn = pyqtSignal(bool)
+    ant_update_stat = pyqtSignal(dict)
