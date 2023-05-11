@@ -77,6 +77,9 @@ class Rilatria(QApplication):
 
         self.ft_game.sg_card_picked.connect(
             self.t_client.card_picked)
+        
+        self.t_client.ant_card_options.connect(
+            self.ft_game.receive_card)
 
     def update_default_lang(self, lang: int) -> None:
         self.lang = lang

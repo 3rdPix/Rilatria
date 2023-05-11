@@ -27,7 +27,7 @@ class GameWindow(QWidget):
 
     def init_gui(self) -> None:
         self.background: QLabel = QLabel(parent=self)
-        self.setMinimumSize(1050, 690)
+        self.setMinimumSize(1169, 690)
 
         # We save these to update players names
         self.p1anel = self.player_1_panel()
@@ -98,29 +98,29 @@ class GameWindow(QWidget):
         # Cards
         self.card1 = CardSet(
             pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
+            pt.pic_heart,
+            pt.pic_shield,
+            pt.pic_clover,
+            pt.pic_coin,
             0, self.sg_card_picked)
         self.card1.setFixedSize(81, 121)
 
         self.card2 = CardSet(
             pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
+            pt.pic_heart,
+            pt.pic_shield,
+            pt.pic_clover,
+            pt.pic_coin,
             1, self.sg_card_picked)
         self.card2.setFixedSize(81, 121)
 
         self.card3 = CardSet(
             pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            pt.pic_try,
-            1, self.sg_card_picked)
+            pt.pic_heart,
+            pt.pic_shield,
+            pt.pic_clover,
+            pt.pic_coin,
+            2, self.sg_card_picked)
         self.card3.setFixedSize(81, 121)
 
         # Layouts and presentation
@@ -268,7 +268,6 @@ class GameWindow(QWidget):
         self.p2anel.setTitle(name)
 
     def my_turn(self, my: bool) -> None:
-        print(my)
         self.btn.setEnabled(my)
 
     def stat_update(self, details: dict) -> None:
@@ -288,9 +287,9 @@ class GameWindow(QWidget):
 
     def receive_card(self, options: list) -> None:
         top_1, bot_1, top_2, bot_2, top_3, bot_3 = options
-        self.card1.set_top(top_1[0], top_1[1])
-        self.card1.set_bot(bot_1[0], bot_1[1])
-        self.card2.set_top(top_2[0], top_2[1])
-        self.card2.set_bot(bot_2[0], bot_2[1])
-        self.card3.set_top(top_3[0], top_3[1])
-        self.card3.set_bot(bot_3[0], bot_3[1])
+        self.card1.set_top(str(top_1[1]), top_1[0])
+        self.card1.set_bot(str(bot_1[1]), bot_1[0])
+        self.card2.set_top(str(top_2[1]), top_2[0])
+        self.card2.set_bot(str(bot_2[1]), bot_2[0])
+        self.card3.set_top(str(top_3[1]), top_3[0])
+        self.card3.set_bot(str(bot_3[1]), bot_3[0])

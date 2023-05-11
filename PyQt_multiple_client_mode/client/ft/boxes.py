@@ -165,7 +165,7 @@ class CardSet(QFrame):
             'placeholder': QPixmap(placeholder_im)}
         self.id = id
         self.clicked: pyqtSignal = sg_click
-        self.setObjectName('card_rect')
+        self.setObjectName('CardSet')
         self.set_format()
 
     def set_format(self) -> None:
@@ -179,6 +179,7 @@ class CardSet(QFrame):
         self.top_rect_im.setScaledContents(True)
         self.top_rect_im.setPixmap(self.background_im['placeholder'])
         self.top_rect_txt = QLabel()
+        self.top_rect_txt.setObjectName('CardText')
         holder_t = QHBoxLayout()
         holder_t.addStretch()
         holder_t.addWidget(self.top_rect_txt)
@@ -189,6 +190,7 @@ class CardSet(QFrame):
         self.bot_rect_im.setScaledContents(True)
         self.bot_rect_im.setPixmap(self.background_im['placeholder'])
         self.bot_rect_txt = QLabel()
+        self.bot_rect_txt.setObjectName('CardText')
         holder_b = QHBoxLayout()
         holder_b.addStretch()
         holder_b.addWidget(self.bot_rect_txt)

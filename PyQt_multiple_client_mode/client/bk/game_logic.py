@@ -68,13 +68,16 @@ class ClientLogic(Signals):
 
     def receive_cards(self, cmd: dict) -> None:
         cards = cmd.get('cards')
-        print(cards)
         options = list()
         for card in cards:
-            if card['health'] != 0: options.append(('health', card['health']))
-            if card['honor'] != 0: options.append(('honor', card['honor']))
-            if card['luck'] != 0: options.append(('luck', card['luck']))
-            if card['coins'] != 0: options.append(('coins', card['coins']))
+            first = list()
+            if card['health'] != 0: first.append(('health', card['health']))
+            if card['honor'] != 0: first.append(('honor', card['honor']))
+            if card['luck'] != 0: first.append(('luck', card['luck']))
+            if card['coins'] != 0: first.append(('coins', card['coins']))
+            while len(first) < 2:
+                first.append(('placeholder', '0'))
+            options.extend(first)
         self.ant_card_options.emit(options)
 
     """
