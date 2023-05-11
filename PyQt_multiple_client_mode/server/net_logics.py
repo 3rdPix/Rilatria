@@ -168,6 +168,14 @@ class Cmd:
             'cards': cards
         }
         return order
+    
+    @staticmethod
+    def update_board(board: list) -> None:
+        order = {
+            'cmd': 'update_board',
+            'board': board
+        }
+        return order
 
     @staticmethod
     def opponent_left() -> dict:

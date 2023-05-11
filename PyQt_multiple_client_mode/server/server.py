@@ -116,7 +116,8 @@ class Server:
         self.opponent_name(players)
         self.show_game(players)
         # create a new game
-        new_game = Game(players, next(self._games_counter))
+        new_game = Game(players, next(self._games_counter),
+                        self.parameters.get('game'))
         self.active_games[new_game.id] = new_game
         new_game.start_game() # might be deleted
         pass

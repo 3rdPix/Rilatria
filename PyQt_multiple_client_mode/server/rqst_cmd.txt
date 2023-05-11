@@ -17,3 +17,4 @@ show_game -> tells to show the game window
 turn_change -> informs that turns changed
 stat_update (stat, new_value) -> indicates the new value of stat
 cards_info -> shows the cards drawn
+update_board (board) -> indicates an update on the board

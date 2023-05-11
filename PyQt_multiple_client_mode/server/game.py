@@ -1,4 +1,4 @@
-from entities import User, Deck, Card
+from entities import User, Deck, Card, Board
 from threading import Thread, Lock, current_thread
 from socket import socket
 from net_logics import Router, Cmd
@@ -8,24 +8,21 @@ class Game:
 
     controller = Lock()
 
-    def __init__(self, players: tuple[User], id: int) -> None:
+    def __init__(self, players: tuple[User], id: int, parameters: dict) -> None:
         print(f'Starting game with {players}')
         self.id = id
-        self.create_game_variables(players)
+        self.create_game_variables(players, parameters)
 
-    def create_game_variables(self, players: tuple[User]) -> None:
+    def create_game_variables(self, players: tuple[User], parameters: dict) -> None:
         self.player_1: User = players[0]
         self.player_2: User = players[1]
         self.players: dict[str, User] = {
             self.player_1.user_name : self.player_1,
             self.player_2.user_name : self.player_2}
+        self.parameters = parameters
         self._current_card_options: list[Card] = list()
         self._current_stage: str = 'None'
-
-    """
-    PROPERTIES
-    """
-
+        self.board = Board(parameters.get('board'))
 
     """
     NETWORKING
@@ -61,7 +58,8 @@ class Game:
         pass
 
     def finish_turn(self) -> None:
-        if self._current_stage == 'pick_card': return
+        if self._current_stage == 'pick_card' \
+            or self._current_stage == 'reserva': return
         asker: str = current_thread().name
         self.controller.acquire()
         if not self.players[asker].my_turn: return
@@ -71,6 +69,7 @@ class Game:
         self.new_turn()
 
     def pick_card(self, request: dict) -> None:
+        self.controller.acquire()
         if self._current_stage != 'pick_card': return
         option = request.get('option')
         if self.player_1.my_turn:
@@ -79,7 +78,8 @@ class Game:
         elif self.player_2.my_turn:
             self.player_2.apply_card(self._current_card_options[option])
             self.update_p2_stats()
-        self._current_stage = 'movement'
+        self.controller.release()
+        self.movement_stage()
 
     """
     COMMANDS
@@ -128,6 +128,11 @@ class Game:
         Router.starken(Cmd.show_cards(sendable), self.player_1)
         Router.starken(Cmd.show_cards(sendable), self.player_2)
         
+    def update_board(self) -> None:
+        cmd = Cmd.update_board(self.board.get_sendable())
+        Router.starken(cmd, self.player_1)
+        Router.starken(cmd, self.player_2)
+
     """
     TASKS
     """
@@ -135,6 +140,7 @@ class Game:
         # Inform the initial stats
         self.update_p1_stats()
         self.update_p2_stats()
+        self.update_board()
 
         # Player 1 starts the game
         self.player_1.my_turn = not self.player_1.my_turn
@@ -160,7 +166,8 @@ class Game:
     def cards_stage(self) -> None:
         self._current_stage = 'pick_card'
         self._current_card_options = list()
-        for _ in range(3):
-            self._current_card_options.append(Deck.draw())
+        for _ in range(3): self._current_card_options.append(Deck.draw())
         self.show_cards()
         
+    def movement_stage(self) -> None:
+        self._current_stage = 'movement'

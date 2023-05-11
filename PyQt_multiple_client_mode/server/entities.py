@@ -1,7 +1,7 @@
 from socket import socket
 from threading import Lock
 from random import randint as rint
-
+from abc import ABC
 
 class Card:
     health: int = 0
@@ -136,3 +136,142 @@ class User(Player):
         return self.__str__()
     
 
+class Piece(ABC):
+
+    def __init__(self, belongs_to: int) -> None:
+        super().__init__()
+        self.owner: int = belongs_to
+
+
+class Barbarian(Piece):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.name = 'Barbarian'
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __str__(self) -> str:
+        return self.name
+
+class HorseRider(Piece):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.name = 'HorseRider'
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __str__(self) -> str:
+        return self.name
+
+class Spearman(Piece):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.name = 'Spearman'
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __str__(self) -> str:
+        return self.name
+
+class RattleTrap(Piece):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.name = 'RattleTrap'
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __str__(self) -> str:
+        return self.name
+
+class Joker(Piece):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.name = 'Joker'
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __str__(self) -> str:
+        return self.name
+
+class Hero(Piece):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.name = 'Hero'
+
+    def __repr__(self) -> str:
+        return self.name
+    
+    def __str__(self) -> str:
+        return self.name
+
+class Cell:
+
+    def __init__(self) -> None:
+        self.contains: Piece|None = None
+        pass
+
+    def place_piece(self, piece: Piece) -> None:
+        self.contains = piece
+        pass
+
+    # def __repr__(self) -> str:
+    #     if self.contains:
+    #         return f"----------\n|{self.contains}|\n----------"
+    #     else:
+    #         return f"----------\n|{'.': ^8s}|\n----------"
+        
+    def __str__(self) -> str:
+        if self.contains:
+            return self.contains.__str__()
+        else:
+            return f"X"
+
+class Board:
+
+    def __init__(self, parameters: dict) -> None:
+        self.cells: list[list[Cell]] = [[Cell() for _ in range(9)] for _ in range(9)]
+        self.init_piece: dict[str, Piece] = {
+            'Barbarian': Barbarian,
+            'HorseRider': HorseRider,
+            'Spearman': Spearman,
+            'RattleTrap': RattleTrap,
+            'Joker': Joker,
+            'Hero': Hero}
+        self.parameters: dict = parameters
+        self.set_starting_pieces()
+        pass
+
+    def set_starting_pieces(self) -> None:
+        pieces = self.parameters.get('starting_pieces')
+        for each in pieces:
+            y, x, piece, owner = each
+            self.cells[y][x].place_piece(
+                self.init_piece[piece](belongs_to=owner))
+        pass
+
+    def get_sendable(self) -> list:
+        sendable_board = list()
+        for row in self.cells:
+            sendable_row = list()
+            for cell in row:
+                if cell.contains: sendable_row.append(cell.contains.name)
+                else: sendable_row.append('X')
+            sendable_board.append(sendable_row)
+        return sendable_board
+
+    def __str__(self) -> str:
+        for row in self.cells:
+            print(row[0], row[1], row[2], row[3], row[4], row[5],
+                  row[6], row[7], row[8])
+        return ''
