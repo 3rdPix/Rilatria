@@ -2,6 +2,40 @@ from socket import socket
 from threading import Lock
 from random import randint as rint
 
+
+class Card:
+    health: int = 0
+    honor: int = 0
+    luck: int = 0
+    coins: int = 0
+
+
+
+class Deck:
+
+    @staticmethod
+    def draw() -> Card:
+        new_card = Card()
+        element1 = rint(1, 4)
+        val1 = rint(-3, 3)
+        match element1:
+            case 1: new_card.health = val1
+            case 2: new_card.honor = val1
+            case 3: new_card.luck = val1
+            case 4: new_card.coins = val1
+        
+        element2 = rint(1, 4)
+        while element1 == element2: element2 = rint(1, 4)
+        if val1 > 0: val2 = rint(-3, 0)
+        elif val1 <= 0: val2 = rint(0, 3)
+        match element2:
+            case 1: new_card.health = val2
+            case 2: new_card.honor = val2
+            case 3: new_card.luck = val2
+            case 4: new_card.coins = val2
+        return new_card
+
+
 class Player:
     
     def __init__(self, ant_death, parameters) -> None:
@@ -23,6 +57,12 @@ class Player:
         if self.health < 1: return False
         if self.coins < 1 and self.luck < 1: return False
         return True
+    
+    def apply_card(self, card: Card) -> None:
+        self.health += card.health
+        self.honor += card.honor
+        self.luck += card.luck
+        self.coins += card.coins
     
     """
     PROPERTIES
@@ -96,34 +136,3 @@ class User(Player):
         return self.__str__()
     
 
-class Card:
-    health: int = 0
-    honor: int = 0
-    luck: int = 0
-    coins: int = 0
-
-
-
-class Deck:
-
-    @staticmethod
-    def draw() -> Card:
-        new_carta = Card()
-        element1 = rint(1, 4)
-        val1 = rint(-3, 3)
-        match element1:
-            case 1: new_carta.vida = val1
-            case 2: new_carta.honor = val1
-            case 3: new_carta.suerte = val1
-            case 4: new_carta.dinero = val1
-        
-        element2 = rint(1, 4)
-        while element1 == element2: element2 = rint(1, 4)
-        if val1 > 0: val2 = rint(-3, 0)
-        elif val1 <= 0: val2 = rint(0, 3)
-        match element2:
-            case 1: new_carta.vida = val2
-            case 2: new_carta.honor = val2
-            case 3: new_carta.suerte = val2
-            case 4: new_carta.dinero = val2
-        return new_carta

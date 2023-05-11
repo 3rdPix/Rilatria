@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal
 
@@ -149,3 +149,65 @@ class TurnSet(QLabel):
     
     def setEnabled(self, a0: bool) -> None:
         return super().setEnabled(a0)
+    
+
+class CardSet(QFrame):
+
+    def __init__(self, placeholder_im: str, health_im: str, honor_im: str,
+                 luck_im: str, coins_im: str, id: int,
+                 sg_click: pyqtSignal) -> None:
+        super().__init__()
+        self.background_im: dict[str, QPixmap] = {
+            'health': QPixmap(health_im),
+            'honor': QPixmap(honor_im),
+            'luck': QPixmap(luck_im),
+            'coins': QPixmap(coins_im),
+            'placeholder': QPixmap(placeholder_im)}
+        self.id = id
+        self.clicked: pyqtSignal = sg_click
+        self.setObjectName('card_rect')
+        self.set_format()
+
+    def set_format(self) -> None:
+        """
+        This is divided into two sectors, upper and bottom. Each should have a
+        background image relative to the stat that is being applied. If no stat
+        is being displayed, it should have a placeholder image as background
+        """
+        # top
+        self.top_rect_im = QLabel()
+        self.top_rect_im.setScaledContents(True)
+        self.top_rect_im.setPixmap(self.background_im['placeholder'])
+        self.top_rect_txt = QLabel()
+        holder_t = QHBoxLayout()
+        holder_t.addStretch()
+        holder_t.addWidget(self.top_rect_txt)
+        holder_t.addStretch()
+        self.top_rect_im.setLayout(holder_t)
+
+        self.bot_rect_im = QLabel()
+        self.bot_rect_im.setScaledContents(True)
+        self.bot_rect_im.setPixmap(self.background_im['placeholder'])
+        self.bot_rect_txt = QLabel()
+        holder_b = QHBoxLayout()
+        holder_b.addStretch()
+        holder_b.addWidget(self.bot_rect_txt)
+        holder_b.addStretch()
+        self.bot_rect_im.setLayout(holder_b)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.top_rect_im)
+        layout.addWidget(self.bot_rect_im)
+        self.setLayout(layout)
+
+    def set_top(self, text: str, stat: str) -> None:
+        self.top_rect_txt.setText(text)
+        self.top_rect_im.setPixmap(self.background_im[stat])
+
+    def set_bot(self, text: str, stat: str) -> None:
+        self.bot_rect_txt.setText(text)
+        self.bot_rect_im.setPixmap(self.background_im[stat])
+        
+    def mouseReleaseEvent(self, event) -> None:
+        if self.underMouse(): self.clicked.emit(self.id)
+        return super().mouseReleaseEvent(event)

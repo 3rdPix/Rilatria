@@ -1,12 +1,15 @@
 from PyQt5.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QVBoxLayout,\
     QLabel, QGridLayout
 from PyQt5.QtGui import QPixmap
-from ft.boxes import StatSet, ItemSet, TurnSet
+from PyQt5.QtCore import pyqtSignal
+from ft.boxes import StatSet, ItemSet, TurnSet, CardSet
 from ft.board import Board
 import paths as pt
 import json
 
 class GameWindow(QWidget):
+
+    sg_card_picked = pyqtSignal(int)
 
     def __init__(self, lang: int, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -93,23 +96,32 @@ class GameWindow(QWidget):
         cards_panel = QGroupBox(title=self.text.get('cards'))
 
         # Cards
-        self.card1: QLabel = QLabel()
-        self.card1.setScaledContents(True)
+        self.card1 = CardSet(
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            0, self.sg_card_picked)
         self.card1.setFixedSize(81, 121)
 
-        self.card2: QLabel = QLabel()
-        self.card2.setScaledContents(True)
+        self.card2 = CardSet(
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            1, self.sg_card_picked)
         self.card2.setFixedSize(81, 121)
 
-        self.card3: QLabel = QLabel()
-        self.card3.setScaledContents(True)
+        self.card3 = CardSet(
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            pt.pic_try,
+            1, self.sg_card_picked)
         self.card3.setFixedSize(81, 121)
-
-        # Delete
-        im_try = QPixmap(pt.pic_try)
-        self.card1.setPixmap(im_try)
-        self.card2.setPixmap(im_try)
-        self.card3.setPixmap(im_try)
 
         # Layouts and presentation
         int_lay = QHBoxLayout()
@@ -274,3 +286,11 @@ class GameWindow(QWidget):
                 case 'luck': self.p2_LP.set_value(val)
                 case 'coins': self.p2_CP.set_value(val)
 
+    def receive_card(self, options: list) -> None:
+        top_1, bot_1, top_2, bot_2, top_3, bot_3 = options
+        self.card1.set_top(top_1[0], top_1[1])
+        self.card1.set_bot(bot_1[0], bot_1[1])
+        self.card2.set_top(top_2[0], top_2[1])
+        self.card2.set_bot(bot_2[0], bot_2[1])
+        self.card3.set_top(top_3[0], top_3[1])
+        self.card3.set_bot(bot_3[0], bot_3[1])

@@ -52,6 +52,7 @@ class ClientLogic(Signals):
             case 'show_game': self.show_game()
             case 'turn_change': self.change_turn()
             case 'stat_update': self.receive_stat_update(cmd)
+            case 'show_cards': self.receive_cards(cmd)
 
     def starken(self, object) -> None:
         if not self.connected: return
@@ -65,12 +66,22 @@ class ClientLogic(Signals):
     def receive_stat_update(self, details: dict) -> None:
         self.ant_update_stat.emit(details)
 
+    def receive_cards(self, cmd: dict) -> None:
+        cards = cmd.get('cards')
+        print(cards)
+        options = list()
+        for card in cards:
+            if card['health'] != 0: options.append(('health', card['health']))
+            if card['honor'] != 0: options.append(('honor', card['honor']))
+            if card['luck'] != 0: options.append(('luck', card['luck']))
+            if card['coins'] != 0: options.append(('coins', card['coins']))
+        self.ant_card_options.emit(options)
+
     """
     Login
     """
     def request_login(self, user: str) -> None:
         if not self.connected: self.create_connection()
-        print(user)
         self.starken(Requests.user_name(user))
         self.username = user
 
@@ -78,11 +89,8 @@ class ClientLogic(Signals):
         if not instruction.get('valid'):
             self.ant_login_error.emit(instruction.get('errors'))
             return
-        print('1')
         self.ant_go_waiting.emit(self.username)
-        print('2')
         self.ant_me_name.emit(self.username)
-        print('3')
         pass
 
     def request_finish_turn(self) -> None:
@@ -100,3 +108,6 @@ class ClientLogic(Signals):
     def change_turn(self) -> None:
         self.my_turn = not self.my_turn
         self.ant_my_turn.emit(self.my_turn)
+
+    def card_picked(self, option: int) -> None:
+        self.starken(Requests.pick_card(option))

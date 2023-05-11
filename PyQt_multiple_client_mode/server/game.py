@@ -20,6 +20,7 @@ class Game:
             self.player_1.user_name : self.player_1,
             self.player_2.user_name : self.player_2}
         self._current_card_options: list[Card] = list()
+        self._current_stage: str = 'None'
 
     """
     PROPERTIES
@@ -56,17 +57,29 @@ class Game:
         key = request.get('request')
         match key:
             case 'finish_turn': self.finish_turn()
+            case 'pick_card': self.pick_card(request)
         pass
 
     def finish_turn(self) -> None:
+        if self._current_stage == 'pick_card': return
         asker: str = current_thread().name
         self.controller.acquire()
         if not self.players[asker].my_turn: return
         self.player_1.my_turn = not self.player_1.my_turn
         self.player_2.my_turn = not self.player_2.my_turn
         self.controller.release()
-        self.turn_change()
-        pass
+        self.new_turn()
+
+    def pick_card(self, request: dict) -> None:
+        if self._current_stage != 'pick_card': return
+        option = request.get('option')
+        if self.player_1.my_turn:
+            self.player_1.apply_card(self._current_card_options[option])
+            self.update_p1_stats()
+        elif self.player_2.my_turn:
+            self.player_2.apply_card(self._current_card_options[option])
+            self.update_p2_stats()
+        self._current_stage = 'movement'
 
     """
     COMMANDS
@@ -76,9 +89,7 @@ class Game:
         Router.starken(cmd, self.player_1)
         Router.starken(cmd, self.player_2)
 
-    def update_stats(self) -> None:
-        # Sends the information with stats of/for both players
-
+    def update_p1_stats(self) -> None:
         # p1 -> p1
         Router.starken(Cmd.stat_update('health', self.player_1.health, True), self.player_1)
         Router.starken(Cmd.stat_update('honor', self.player_1.honor, True), self.player_1)
@@ -91,6 +102,7 @@ class Game:
         Router.starken(Cmd.stat_update('luck', self.player_1.luck, False), self.player_2)
         Router.starken(Cmd.stat_update('coins', self.player_1.coins, False), self.player_2)
 
+    def update_p2_stats(self) -> None:
         # p2 -> p2
         Router.starken(Cmd.stat_update('health', self.player_2.health, True), self.player_2)
         Router.starken(Cmd.stat_update('honor', self.player_2.honor, True), self.player_2)
@@ -102,7 +114,7 @@ class Game:
         Router.starken(Cmd.stat_update('honor', self.player_2.honor, False), self.player_1)
         Router.starken(Cmd.stat_update('luck', self.player_2.luck, False), self.player_1)
         Router.starken(Cmd.stat_update('coins', self.player_2.coins, False), self.player_1)
-
+        
     def show_cards(self) -> None:
         sendable = list()
         for each in self._current_card_options:
@@ -119,20 +131,36 @@ class Game:
     """
     TASKS
     """
-    def start(self) -> None:
+    def start_game(self) -> None:
         # Inform the initial stats
-        self.update_stats()
+        self.update_p1_stats()
+        self.update_p2_stats()
 
         # Player 1 starts the game
         self.player_1.my_turn = not self.player_1.my_turn
+        self._current_stage = 'pick_card'
         Router.starken(Cmd.turn_change(), self.player_1)
+        self.cards_stage()
         self.set_linsteners()
 
-    def reserva_stage(self) -> None:
-        if 
+    def new_turn(self) -> None:
+        self.turn_change()
+        self.reserva_stage()
+        self.cards_stage()
 
-    def cards_stage(self) -> dict:
+    def reserva_stage(self) -> None:
+        self._current_stage = 'reserva'
+        if self.player_1.my_turn:
+            self.player_1.chain_effects()
+            self.update_p1_stats()
+        elif self.player_2.my_turn:
+            self.player_2.chain_effects()
+            self.update_p2_stats()
+
+    def cards_stage(self) -> None:
+        self._current_stage = 'pick_card'
         self._current_card_options = list()
         for _ in range(3):
             self._current_card_options.append(Deck.draw())
         self.show_cards()
+        

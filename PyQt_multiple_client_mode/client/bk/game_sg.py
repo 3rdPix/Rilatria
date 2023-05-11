@@ -16,3 +16,4 @@ class Signals(QObject):
 
     ant_my_turn = pyqtSignal(bool)
     ant_update_stat = pyqtSignal(dict)
+    ant_card_options = pyqtSignal(list)
