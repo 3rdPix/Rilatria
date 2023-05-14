@@ -75,6 +75,9 @@ class Rilatria(QApplication):
         self.t_client.ant_update_stat.connect(
             self.ft_game.stat_update)
 
+        self.t_client.ant_update_board.connect(
+            self.ft_game.update_board)
+
         self.ft_game.sg_card_picked.connect(
             self.t_client.card_picked)
         

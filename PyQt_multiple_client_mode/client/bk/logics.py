@@ -80,3 +80,11 @@ class Requests:
             'option': option
         }
         return order
+    
+    @staticmethod
+    def cell_clicked(cell: tuple) -> dict:
+        order = {
+            'request': 'cell_clicked',
+            'cell': list(cell)
+        }
+        return order

@@ -22,7 +22,12 @@ class Game:
         self.parameters = parameters
         self._current_card_options: list[Card] = list()
         self._current_stage: str = 'None'
-        self.board = Board(parameters.get('board'))
+        self.board = Board(parameters.get('board'), parameters.get('pieces'),
+                           self.player_1, self.player_2)
+
+        # related to movement and cell_clicking
+        self.piece_to_move_picked: bool = False
+
 
     """
     NETWORKING
@@ -45,7 +50,7 @@ class Game:
                 self.read_request(request)
         except ConnectionError:
             # handle disconnection
-            pass
+            raise ModuleNotFoundError('Missing code; sudden disconnection')
 
     """
     REQUESTS
@@ -55,7 +60,7 @@ class Game:
         match key:
             case 'finish_turn': self.finish_turn()
             case 'pick_card': self.pick_card(request)
-        pass
+            case 'cell_clicked': self.user_clicked_a_cell(request)
 
     def finish_turn(self) -> None:
         if self._current_stage == 'pick_card' \
@@ -80,6 +85,38 @@ class Game:
             self.update_p2_stats()
         self.controller.release()
         self.movement_stage()
+
+    def user_clicked_a_cell(self, request: dict) -> None:
+        x, y = request.get('cell')
+        who_clicked = self.players[current_thread().name]
+        q1 = who_clicked.my_turn                            # tu turno
+        q2 = self.board.is_cell_occupied(x, y)              # celda ocupada
+        q3 = self.board.is_whos(x, y) is who_clicked        # es tu pieza
+        q4 = True if self.board.selected_piece else False   # seleccionada
+        q5 = self.board.is_legal_move(x, y)                 # legal
+
+        match [q1, q2, q3, q4, q5]:
+            
+            case [False, False, *q]:
+                self.update_p_board(who_clicked, self.board.get_sendable())
+            case [False, True, False, *q]:
+                self.update_p_board(who_clicked, self.board.get_sendable())
+            case [False, True, True, *q]: pass                  # show legal moves
+
+            case [True, False, True|False, False, *q]:
+                self.update_p_board(who_clicked, self.board.get_sendable())
+            case [True, False, True|False, True, False]:
+                self.update_p_board(who_clicked, self.board.get_sendable())
+            case [True, False, True|False, True, True]: pass    # move to empty cell
+            case [True, True, True, *q]: pass                   # show legal moves
+            case [True, True, False, False, *q]:
+                self.update_p_board(who_clicked, self.board.get_sendable())
+            case [True, True, False, True, False]:
+                self.update_p_board(who_clicked, self.board.get_sendable())
+            case [True, True, False, True, True]: pass          # eat a piece
+
+        
+
 
     """
     COMMANDS
@@ -133,6 +170,10 @@ class Game:
         Router.starken(cmd, self.player_1)
         Router.starken(cmd, self.player_2)
 
+    def update_p_board(self, player, content) -> None:
+        cmd = Cmd.update_board(content)
+        Router.starken(cmd, player)
+
     """
     TASKS
     """
@@ -171,3 +212,4 @@ class Game:
         
     def movement_stage(self) -> None:
         self._current_stage = 'movement'
+        self.update_board()

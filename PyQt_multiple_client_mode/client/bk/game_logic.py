@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QObject, pyqtSignal, QThread
-from bk.entities import Player, Board, Piece, Deck
 from bk.logics import Router, Requests
 from bk.game_sg import Signals
 from socket import socket as wire, AF_INET, SOCK_STREAM
@@ -53,6 +52,7 @@ class ClientLogic(Signals):
             case 'turn_change': self.change_turn()
             case 'stat_update': self.receive_stat_update(cmd)
             case 'show_cards': self.receive_cards(cmd)
+            case 'update_board': self.update_board(cmd)
 
     def starken(self, object) -> None:
         if not self.connected: return
@@ -108,9 +108,15 @@ class ClientLogic(Signals):
     def show_game(self) -> None:
         self.ant_show_game.emit()
 
+    def update_board(self, cmd: dict) -> None:
+        self.ant_update_board.emit(cmd.get('board'))
+
     def change_turn(self) -> None:
         self.my_turn = not self.my_turn
         self.ant_my_turn.emit(self.my_turn)
 
     def card_picked(self, option: int) -> None:
         self.starken(Requests.pick_card(option))
+
+    def cell_clicked(self, cell: tuple) -> None:
+        self.starken(Requests.cell_clicked(cell))

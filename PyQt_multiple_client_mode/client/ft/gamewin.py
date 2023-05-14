@@ -10,6 +10,7 @@ import json
 class GameWindow(QWidget):
 
     sg_card_picked = pyqtSignal(int)
+    sg_cell_clicked = pyqtSignal(tuple)
 
     def __init__(self, lang: int, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -161,7 +162,15 @@ class GameWindow(QWidget):
 
     def create_board_panel(self) -> QGroupBox:
         box = QGroupBox(title=self.text.get('field'))
-        self.board = Board()
+        self.board = Board(
+            im_barbarian=pt.pic_pawn,
+            im_horserider=pt.pic_horse,
+            im_spearman=pt.pic_bishop,
+            im_rattletrap=pt.pic_rook,
+            im_joker=pt.pic_joker,
+            im_hero=pt.pic_p1,
+            sg_cell_clicked=self.sg_cell_clicked
+        )
         v_box = QVBoxLayout()
         v_box.addStretch()
 
@@ -284,6 +293,9 @@ class GameWindow(QWidget):
                 case 'honor': self.p2_VP.set_value(val)
                 case 'luck': self.p2_LP.set_value(val)
                 case 'coins': self.p2_CP.set_value(val)
+
+    def update_board(self, board: list) -> None:
+        self.board.display(board)
 
     def receive_card(self, options: list) -> None:
         top_1, bot_1, top_2, bot_2, top_3, bot_3 = options

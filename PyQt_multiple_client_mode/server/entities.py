@@ -49,6 +49,9 @@ class Player:
         self._luck: int = self.parameters.get('init_luck')
         self._coins: int = self.parameters.get('init_coins')
         self.my_turn: bool = False
+        self._moved_hero: bool = False
+        self._moved_piece: bool = False
+        self._is_moving: bool = False
 
     """
     PUBLIC
@@ -138,10 +141,11 @@ class User(Player):
 
 class Piece(ABC):
 
-    def __init__(self, belongs_to: int) -> None:
+    def __init__(self, belongs_to: int, parameters: dict) -> None:
         super().__init__()
         self.owner: int = belongs_to
-
+        self.legal_moves: list = parameters.get('moves')
+        self.legal_eats: list = parameters.get('eats')
 
 class Barbarian(Piece):
 
@@ -219,18 +223,13 @@ class Cell:
 
     def __init__(self) -> None:
         self.contains: Piece|None = None
-        pass
 
     def place_piece(self, piece: Piece) -> None:
         self.contains = piece
-        pass
 
-    # def __repr__(self) -> str:
-    #     if self.contains:
-    #         return f"----------\n|{self.contains}|\n----------"
-    #     else:
-    #         return f"----------\n|{'.': ^8s}|\n----------"
-        
+    def is_occupied(self) -> bool:
+        return True if self.contains else False
+
     def __str__(self) -> str:
         if self.contains:
             return self.contains.__str__()
@@ -239,8 +238,10 @@ class Cell:
 
 class Board:
 
-    def __init__(self, parameters: dict) -> None:
-        self.cells: list[list[Cell]] = [[Cell() for _ in range(9)] for _ in range(9)]
+    def __init__(self, board_parameters: dict, piece_parameters: dict,
+                 p1: User, p2: User) -> None:
+        self.cells: list[list[Cell]] = [
+            [Cell() for _ in range(9)] for _ in range(9)]
         self.init_piece: dict[str, Piece] = {
             'Barbarian': Barbarian,
             'HorseRider': HorseRider,
@@ -248,18 +249,32 @@ class Board:
             'RattleTrap': RattleTrap,
             'Joker': Joker,
             'Hero': Hero}
-        self.parameters: dict = parameters
+        self.parameters: dict = board_parameters
+        self.piece_parameters: dict = piece_parameters
+        self.owners: dict[int, User] = {1: p1, 2: p2}
+        self.selected_piece: tuple[int]|None = None
+        self.set_prices(piece_parameters)
         self.set_starting_pieces()
-        pass
 
     def set_starting_pieces(self) -> None:
         pieces = self.parameters.get('starting_pieces')
         for each in pieces:
             y, x, piece, owner = each
             self.cells[y][x].place_piece(
-                self.init_piece[piece](belongs_to=owner))
-        pass
+                self.init_piece[piece](
+                belongs_to=owner, parameters=self.piece_parameters[piece]))
 
+    def set_prices(self, piece_parameters: dict) -> None:
+        self.prices: dict[str, int] = {
+            'Barbarian': piece_parameters.get('Barbarian').get('price'),
+            'Horserider': piece_parameters.get('Horserider').get('price'),
+            'Spearman': piece_parameters.get('Spearman').get('price'),
+            'RattleTrap': piece_parameters.get('RattleTrap').get('price'),
+            'Joker': piece_parameters.get('Joker').get('price')}
+
+    def is_cell_occupied(self, x: int, y: int) -> None|Cell:
+        return self.cells[y][x].is_occupied()
+        
     def get_sendable(self) -> list:
         sendable_board = list()
         for row in self.cells:
@@ -269,6 +284,18 @@ class Board:
                 else: sendable_row.append('X')
             sendable_board.append(sendable_row)
         return sendable_board
+    
+    def is_whos(self, x: int, y: int) -> User|False:
+        if self.cells[y][x].contains:
+            return self.owners[self.cells[y][x].contains.owner]
+        else:
+            return False
+
+    def has_selected_piece(self) -> bool:
+        return True if self.selected_piece else False
+    
+    def is_legal_move(self, x: int, y: int) -> bool:
+        pass
 
     def __str__(self) -> str:
         for row in self.cells:
