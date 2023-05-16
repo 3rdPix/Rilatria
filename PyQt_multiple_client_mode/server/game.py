@@ -101,7 +101,8 @@ class Game:
                 self.update_p_board(who_clicked, self.board.get_sendable())
             case [False, True, False, *q]:
                 self.update_p_board(who_clicked, self.board.get_sendable())
-            case [False, True, True, *q]: pass                  # show legal moves
+            case [False, True, True, *q]:
+                self.prepare_legal_moves(x, y)
 
             case [True, False, True|False, False, *q]:
                 self.update_p_board(who_clicked, self.board.get_sendable())
@@ -174,6 +175,10 @@ class Game:
         cmd = Cmd.update_board(content)
         Router.starken(cmd, player)
 
+    def show_legal_moves(self, moves: list, eats: list, who: User) -> None:
+        cmd = Cmd.show_legal_moves(moves, eats)
+        Router.starken(cmd, who)
+
     """
     TASKS
     """
@@ -213,3 +218,8 @@ class Game:
     def movement_stage(self) -> None:
         self._current_stage = 'movement'
         self.update_board()
+
+    def prepare_legal_moves(self, x: int, y: int) -> None:
+        legal_moves, legal_eats = self.board.get_legal_moves(x, y)
+        who = self.players[current_thread().name]
+        self.send_legal_moves(legal_moves, legal_eats, who)

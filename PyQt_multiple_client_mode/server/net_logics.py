@@ -170,10 +170,19 @@ class Cmd:
         return order
     
     @staticmethod
-    def update_board(board: list) -> None:
+    def update_board(board: list) -> dict:
         order = {
             'cmd': 'update_board',
             'board': board
+        }
+        return order
+    
+    @staticmethod
+    def show_legal_moves(moves: list, eats: list) -> dict:
+        order = {
+            'cmd': 'show_legal_moves',
+            'moves': moves,
+            'eats': eats
         }
         return order
 
