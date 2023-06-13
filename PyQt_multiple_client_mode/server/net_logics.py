@@ -177,6 +177,7 @@ class Cmd:
         }
         return order
     
+    
     @staticmethod
     def show_legal_moves(moves: list, eats: list) -> dict:
         order = {

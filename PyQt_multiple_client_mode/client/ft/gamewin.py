@@ -297,6 +297,9 @@ class GameWindow(QWidget):
     def update_board(self, board: list) -> None:
         self.board.display(board)
 
+    def update_legal_moves(self, options: list) -> None:
+        self.board.show_legal_moves(options)
+
     def receive_card(self, options: list) -> None:
         top_1, bot_1, top_2, bot_2, top_3, bot_3 = options
         self.card1.set_top(str(top_1[1]), top_1[0])

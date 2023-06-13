@@ -11,6 +11,16 @@ class Cell(QLabel):
         self.clicked: pyqtSignal = sg_clicked
         self.clicking: bool = False
         self.coords: tuple = coords
+        self.create_indicator()
+
+    def create_indicator(self) -> None:
+        self.indicator = QLabel()
+        self.indicator.setFixedSize(30, 30)
+        self.indicator.setStyleSheet('QLabel {background-color: cyan;}')
+        box = QGridLayout()
+        box.addWidget(self.indicator)
+        self.setLayout(box)
+        self.indicator.hide()
 
     def mousePressEvent(self, ev) -> None:
         self.clicking = True
@@ -43,7 +53,7 @@ class Board(QWidget):
         grid: QGridLayout = QGridLayout()
         grid.setSpacing(0)
         grid.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.cells: list[list[QLabel]] = []
+        self.cells: list[list[Cell]] = []
 
         for i in range(9):
             row = []
@@ -62,8 +72,14 @@ class Board(QWidget):
     def display(self, board: list) -> None:
         for my_row, real_row in zip(self.cells, board):
             for my_cell, real_piece in zip(my_row, real_row):
+                my_cell.indicator.hide()
                 if real_piece == 'X': continue
                 my_cell.setPixmap(self.icons[real_piece])
+
+    def show_legal_moves(self, options: list) -> None:
+        for option in options:
+            x, y = option
+            self.cells[y][x].indicator.show()
 
     def resizeEvent(self, event):
         size = min(self.width(), self.height())

@@ -163,7 +163,7 @@ class HorseRider(Piece):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.name = 'HorseRider'
+        self.name = 'Horserider'
 
     def __repr__(self) -> str:
         return self.name
@@ -244,7 +244,7 @@ class Board:
             [Cell() for _ in range(9)] for _ in range(9)]
         self.init_piece: dict[str, Piece] = {
             'Barbarian': Barbarian,
-            'HorseRider': HorseRider,
+            'Horserider': HorseRider,
             'Spearman': Spearman,
             'RattleTrap': RattleTrap,
             'Joker': Joker,
@@ -262,7 +262,8 @@ class Board:
             y, x, piece, owner = each
             self.cells[y][x].place_piece(
                 self.init_piece[piece](
-                belongs_to=owner, parameters=self.piece_parameters[piece]))
+                belongs_to=self.owners[owner],
+                parameters=self.piece_parameters[piece]))
 
     def set_prices(self, piece_parameters: dict) -> None:
         self.prices: dict[str, int] = {
@@ -285,34 +286,41 @@ class Board:
             sendable_board.append(sendable_row)
         return sendable_board
     
-    def is_whos(self, x: int, y: int) -> User|False:
+    def is_whos(self, x: int, y: int) -> User|bool:
         if self.cells[y][x].contains:
-            return self.owners[self.cells[y][x].contains.owner]
+            return self.cells[y][x].contains.owner
         else:
             return False
 
     def has_selected_piece(self) -> bool:
         return True if self.selected_piece else False
     
-    def get_legal_moves(self, x: int, y: int) -> list:
+    def get_legal_moves(self, x: int, y: int, p: User) -> list:
         if not self.is_cell_occupied(x, y): return
-        
+        print('CLICKED CELL:', x, y)
+
         # step 1: get what cells exists in the board around selection
         neighbourhood = self.adjacent_finder(x, y, 2)
+        print('NEIGHBOURHOOD:', neighbourhood)
         
         # step 2: get what cells is the piece wanting to go
         relative_moves = self.cells[y][x].contains.legal_moves
         relative_eats = self.cells[y][x].contains.legal_eats
+        print('RELATIVE MOVES:', relative_moves)
+
         absolute_moves = self.relative_to_absolute(x, y, relative_moves)
         absolute_eats = self.relative_to_absolute(x, y, relative_eats)
+        print('ABSOLUTE MOVES', absolute_moves)
         
         # step 3: cross this information
         valid_moves = self.find_common(neighbourhood, absolute_moves)
         valid_eats = self.find_common(neighbourhood, absolute_eats)
+        print('VALID MOVES', valid_moves)
 
         # step 4: verify if target moving cells are available
         legal_moves = self.find_free_cells(valid_moves)
-        legal_eats = self.find_occupied_cells(valid_eats)
+        legal_eats = self.find_legal_eats(valid_eats, p)
+        print('LEGAL MOVES', legal_moves)
 
         return legal_moves, legal_eats
 
@@ -323,11 +331,13 @@ class Board:
             if not self.is_cell_occupied(x, y): free_cells.append(target)
         return free_cells
 
-    def find_occupied_cells(self, options: list) -> list:
+    def find_legal_eats(self, options: list, p: User) -> list:
         occupied_cells = list()
         for target in options:
             x, y = target
-            if self.is_cell_occupied(x, y): occupied_cells.append(target)
+            if not self.is_cell_occupied(x, y): continue
+            owner = self.cells[y][x].contains.owner
+            if not owner is p: occupied_cells.append(target)
         return occupied_cells
 
     def find_common(self, king: list, *args) -> list:
@@ -341,21 +351,21 @@ class Board:
         absolute = list()
         for target in rel:
             i, j = target
-            absolute.append[x + i, y + j]
+            absolute.append([x + i, y + j])
         return absolute
 
     def adjacent_finder(self, i: int, j: int, md: int) -> list:
             neighbour = []
             for dx in range(-md, md + 1):
-                for dy in range(md, md + 1):
-                    rangeX = range(0, self.X)
-                    rangeY = range(0, self.Y)
+                for dy in range(-md, md + 1):
+                    rangeX = range(0, 9)
+                    rangeY = range(0, 9)
                     (newX, newY) = (i + dx, j + dy)
                     if (newX in rangeX) and (newY in rangeY) and (dx, dy) != (0, 0):
-                        neighbour.append((newX, newY))
+                        neighbour.append([newX, newY])
             return neighbour
 
-    def is_legal_move(self, x: int, y: int) -> bool:
+    def try_legal_move(self, x: int, y: int) -> bool:
         pass
 
     def __str__(self) -> str:

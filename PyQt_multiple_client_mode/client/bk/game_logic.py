@@ -53,6 +53,7 @@ class ClientLogic(Signals):
             case 'stat_update': self.receive_stat_update(cmd)
             case 'show_cards': self.receive_cards(cmd)
             case 'update_board': self.update_board(cmd)
+            case 'show_legal_moves': self.update_legal_moves(cmd)
 
     def starken(self, object) -> None:
         if not self.connected: return
@@ -79,6 +80,13 @@ class ClientLogic(Signals):
                 first.append(('placeholder', '0'))
             options.extend(first)
         self.ant_card_options.emit(options)
+
+    def update_legal_moves(self, cmd: dict) -> None:
+        moves = cmd.get('moves')
+        eats = cmd.get('eats')
+        print(moves, eats)
+        whole = moves + eats
+        self.ant_update_legal_moves.emit(whole)
 
     """
     Login
@@ -119,4 +127,5 @@ class ClientLogic(Signals):
         self.starken(Requests.pick_card(option))
 
     def cell_clicked(self, cell: tuple) -> None:
+        print('cell_clicked')
         self.starken(Requests.cell_clicked(cell))

@@ -93,27 +93,29 @@ class Game:
         q2 = self.board.is_cell_occupied(x, y)              # celda ocupada
         q3 = self.board.is_whos(x, y) is who_clicked        # es tu pieza
         q4 = True if self.board.selected_piece else False   # seleccionada
-        q5 = self.board.is_legal_move(x, y)                 # legal
+        q5 = self.board.try_legal_move(x, y)                 # legal
 
+        print('cell_clicked:', who_clicked, q1, q2, q3, q4, q5)
         match [q1, q2, q3, q4, q5]:
             
             case [False, False, *q]:
-                self.update_p_board(who_clicked, self.board.get_sendable())
+                self.clear_p_board(who_clicked, self.board.get_sendable())
             case [False, True, False, *q]:
-                self.update_p_board(who_clicked, self.board.get_sendable())
+                self.clear_p_board(who_clicked, self.board.get_sendable())
             case [False, True, True, *q]:
                 self.prepare_legal_moves(x, y)
 
             case [True, False, True|False, False, *q]:
-                self.update_p_board(who_clicked, self.board.get_sendable())
+                self.clear_p_board(who_clicked, self.board.get_sendable())
             case [True, False, True|False, True, False]:
-                self.update_p_board(who_clicked, self.board.get_sendable())
+                self.clear_p_board(who_clicked, self.board.get_sendable())
             case [True, False, True|False, True, True]: pass    # move to empty cell
-            case [True, True, True, *q]: pass                   # show legal moves
+            case [True, True, True, *q]:
+                self.prepare_legal_moves(x, y)                   # show legal moves
             case [True, True, False, False, *q]:
-                self.update_p_board(who_clicked, self.board.get_sendable())
+                self.clear_p_board(who_clicked, self.board.get_sendable())
             case [True, True, False, True, False]:
-                self.update_p_board(who_clicked, self.board.get_sendable())
+                self.clear_p_board(who_clicked, self.board.get_sendable())
             case [True, True, False, True, True]: pass          # eat a piece
 
         
@@ -171,7 +173,7 @@ class Game:
         Router.starken(cmd, self.player_1)
         Router.starken(cmd, self.player_2)
 
-    def update_p_board(self, player, content) -> None:
+    def clear_p_board(self, player, content) -> None:
         cmd = Cmd.update_board(content)
         Router.starken(cmd, player)
 
@@ -220,6 +222,6 @@ class Game:
         self.update_board()
 
     def prepare_legal_moves(self, x: int, y: int) -> None:
-        legal_moves, legal_eats = self.board.get_legal_moves(x, y)
         who = self.players[current_thread().name]
-        self.send_legal_moves(legal_moves, legal_eats, who)
+        legal_moves, legal_eats = self.board.get_legal_moves(x, y, who)
+        self.show_legal_moves(legal_moves, legal_eats, who)

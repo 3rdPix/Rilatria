@@ -23,7 +23,7 @@
     "game":
     {
         "board": {
-            "starting_pieces": [[2, 2, "Hero", 1], [6, 6, "Hero", 2]] 
+            "starting_pieces": [[2, 2, "Hero", 1], [6, 6, "Hero", 2], [4,4,"Spearman",2],[7,8,"Horserider",1]] 
         },
         "pieces":
         {
