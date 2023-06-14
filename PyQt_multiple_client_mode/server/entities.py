@@ -224,8 +224,14 @@ class Cell:
     def __init__(self) -> None:
         self.contains: Piece|None = None
 
+    def get_piece(self) -> Piece|None:
+        return self.contains
+
     def place_piece(self, piece: Piece) -> None:
         self.contains = piece
+
+    def remove_piece(self) -> None:
+        self.contains = None
 
     def is_occupied(self) -> bool:
         return True if self.contains else False
@@ -253,6 +259,7 @@ class Board:
         self.piece_parameters: dict = piece_parameters
         self.owners: dict[int, User] = {1: p1, 2: p2}
         self.selected_piece: tuple[int]|None = None
+        self.possible_moves: list|None = list()
         self.set_prices(piece_parameters)
         self.set_starting_pieces()
 
@@ -297,31 +304,26 @@ class Board:
     
     def get_legal_moves(self, x: int, y: int, p: User) -> list:
         if not self.is_cell_occupied(x, y): return
-        print('CLICKED CELL:', x, y)
 
         # step 1: get what cells exists in the board around selection
         neighbourhood = self.adjacent_finder(x, y, 2)
-        print('NEIGHBOURHOOD:', neighbourhood)
         
         # step 2: get what cells is the piece wanting to go
         relative_moves = self.cells[y][x].contains.legal_moves
         relative_eats = self.cells[y][x].contains.legal_eats
-        print('RELATIVE MOVES:', relative_moves)
 
         absolute_moves = self.relative_to_absolute(x, y, relative_moves)
         absolute_eats = self.relative_to_absolute(x, y, relative_eats)
-        print('ABSOLUTE MOVES', absolute_moves)
         
         # step 3: cross this information
         valid_moves = self.find_common(neighbourhood, absolute_moves)
         valid_eats = self.find_common(neighbourhood, absolute_eats)
-        print('VALID MOVES', valid_moves)
 
         # step 4: verify if target moving cells are available
         legal_moves = self.find_free_cells(valid_moves)
         legal_eats = self.find_legal_eats(valid_eats, p)
-        print('LEGAL MOVES', legal_moves)
-
+        self.possible_moves = legal_moves + legal_eats
+        self.selected_piece = (x, y)
         return legal_moves, legal_eats
 
     def find_free_cells(self, options: list) -> list:
@@ -366,7 +368,27 @@ class Board:
             return neighbour
 
     def try_legal_move(self, x: int, y: int) -> bool:
-        pass
+        return True if [x, y] in self.possible_moves else False
+
+    def move_to(self, x: int, y: int) -> None:
+        if not self.selected_piece: return
+        old_x, old_y = self.selected_piece
+        piece = self.cells[old_y][old_x].get_piece()
+        self.cells[y][x].place_piece(piece)
+        self.cells[old_y][old_x].remove_piece()
+        self.selected_piece = None
+
+    def eat_to(self, x: int, y: int) -> None:
+        if not self.selected_piece: return
+        old_x, old_y = self.selected_piece
+        piece: Piece = self.cells[old_y][old_x].get_piece()
+        eated: Piece = self.cells[y][x].get_piece()
+        self.cells[y][x].place_piece(piece)
+        self.cells[old_y][old_x].remove_piece()
+        piece.owner.honor += 1
+        eated.owner.health -= 2
+        del eated
+        self.selected_piece = None
 
     def __str__(self) -> str:
         for row in self.cells:

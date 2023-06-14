@@ -127,5 +127,5 @@ class ClientLogic(Signals):
         self.starken(Requests.pick_card(option))
 
     def cell_clicked(self, cell: tuple) -> None:
-        print('cell_clicked')
+        print('cell_clicked', cell)
         self.starken(Requests.cell_clicked(cell))

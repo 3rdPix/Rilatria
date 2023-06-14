@@ -93,7 +93,7 @@ class Game:
         q2 = self.board.is_cell_occupied(x, y)              # celda ocupada
         q3 = self.board.is_whos(x, y) is who_clicked        # es tu pieza
         q4 = True if self.board.selected_piece else False   # seleccionada
-        q5 = self.board.try_legal_move(x, y)                 # legal
+        q5 = self.board.try_legal_move(x, y)                # legal
 
         print('cell_clicked:', who_clicked, q1, q2, q3, q4, q5)
         match [q1, q2, q3, q4, q5]:
@@ -109,14 +109,23 @@ class Game:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
             case [True, False, True|False, True, False]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
-            case [True, False, True|False, True, True]: pass    # move to empty cell
+            
+            # move to empty cell
+            case [True, False, True|False, True, True]:
+                self.move_to_empty_cell(x, y)
+            
+            # show legal moves
             case [True, True, True, *q]:
-                self.prepare_legal_moves(x, y)                   # show legal moves
+                self.prepare_legal_moves(x, y)
+            
             case [True, True, False, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
             case [True, True, False, True, False]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
-            case [True, True, False, True, True]: pass          # eat a piece
+            
+            # eat a piece
+            case [True, True, False, True, True]:
+                self.move_to_occupied_cell(x, y)
 
         
 
@@ -224,4 +233,19 @@ class Game:
     def prepare_legal_moves(self, x: int, y: int) -> None:
         who = self.players[current_thread().name]
         legal_moves, legal_eats = self.board.get_legal_moves(x, y, who)
+        
+        # was coupling legal moves if different pieces were clicked
+        # consecutively, firt send the current clean board and
+        # then update the new legal moves for the selected piece
+        self.clear_p_board(who, self.board.get_sendable())
         self.show_legal_moves(legal_moves, legal_eats, who)
+
+    def move_to_empty_cell(self, x: int, y: int) -> None:
+        self.board.move_to(x, y)
+        self.update_board()
+
+    def move_to_occupied_cell(self, x: int, y: int) -> None:
+        self.board.eat_to(x, y)
+        self.update_board()
+        self.update_p1_stats()
+        self.update_p2_stats()

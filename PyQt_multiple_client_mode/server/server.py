@@ -22,7 +22,7 @@ class Server:
         print('Initializing Server...')
         self.server_socket.bind((host, port))
         self.server_socket.listen()
-        print(f'Listening at {host}:{port}')
+        # print(f'Listening at {host}:{port}')
         self.waiting_room = WaitingRoom(self.launch_new_game)
         self.start_connections_thread()
 
@@ -46,7 +46,7 @@ class Server:
                 listener = Thread(target=self.client_listen_login,
                                 args=[new_user], daemon=True)
                 listener.start()
-                print(f'Connected to new user at {client_addrs}:{client_port}')
+                # print(f'Connected to new user at {client_addrs}:{client_port}')
         except OSError:
             print("Server was closed. Can't accept new clients")
 

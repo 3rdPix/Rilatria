@@ -58,7 +58,7 @@ class Board(QWidget):
         for i in range(9):
             row = []
             for j in range(9):
-                cell = Cell(sg_cell_clicked, (i, j))
+                cell = Cell(sg_cell_clicked, (j, i))
                 cell.setScaledContents(True)
                 cell.setObjectName('Cell')
                 cell.setAlignment(Qt.AlignCenter)
@@ -73,7 +73,9 @@ class Board(QWidget):
         for my_row, real_row in zip(self.cells, board):
             for my_cell, real_piece in zip(my_row, real_row):
                 my_cell.indicator.hide()
-                if real_piece == 'X': continue
+                if real_piece == 'X':
+                    my_cell.setPixmap(QPixmap())
+                    continue
                 my_cell.setPixmap(self.icons[real_piece])
 
     def show_legal_moves(self, options: list) -> None:
