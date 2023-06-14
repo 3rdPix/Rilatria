@@ -5,6 +5,7 @@ from threading import Thread
 from net_logics import Router, Cmd
 from waiting_room import WaitingRoom
 from game import Game
+import json
 
 
 class Server:
@@ -14,12 +15,14 @@ class Server:
     _games_counter = count(start=1)
     connected_users: dict[int, User] = {}
     active_games: dict[int, Game]= {}
+    with open('parameters.json', mode='r', encoding='utf-8') as raw:
+        parameters = json.load(raw)
 
     def __init__(self, host: str, port: int) -> None:
         print('Initializing Server...')
         self.server_socket.bind((host, port))
         self.server_socket.listen()
-        print(f'Listening at {host}:{port}')
+        # print(f'Listening at {host}:{port}')
         self.waiting_room = WaitingRoom(self.launch_new_game)
         self.start_connections_thread()
 
@@ -34,14 +37,18 @@ class Server:
 
     def accept_connections(self) -> None:
         print('Server accepting connections.')
-        while True:
-            client_wire, (client_addrs, client_port) = self.server_socket.accept()
-            new_user = User(client_wire, next(self._user_counter))
-            self.connected_users[new_user.id] = new_user
-            listener = Thread(target=self.client_listen_login,
-                              args=[new_user], daemon=True)
-            listener.start()
-            print(f'Connected to new user at {client_addrs}:{client_port}')
+        try:    
+            while True:
+                client_wire, (client_addrs, client_port) = self.server_socket.accept()
+                new_user = User(client_wire, next(self._user_counter),
+                                parameters=self.parameters.get('player_stats'))
+                self.connected_users[new_user.id] = new_user
+                listener = Thread(target=self.client_listen_login,
+                                args=[new_user], daemon=True)
+                listener.start()
+                # print(f'Connected to new user at {client_addrs}:{client_port}')
+        except OSError:
+            print("Server was closed. Can't accept new clients")
 
     def client_listen_login(self, user: User) -> None:
         try:
@@ -109,7 +116,8 @@ class Server:
         self.opponent_name(players)
         self.show_game(players)
         # create a new game
-        new_game = Game(players, next(self._games_counter))
+        new_game = Game(players, next(self._games_counter),
+                        self.parameters.get('game'))
         self.active_games[new_game.id] = new_game
-        new_game.start() # might be deleted
+        new_game.start_game() # might be deleted
         pass

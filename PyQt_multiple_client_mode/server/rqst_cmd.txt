@@ -2,6 +2,7 @@ Requests by end_point (rqst):
 
 user_name (name) -> asks verifying of a username
 finish_turn -> informs that user finished turn
+pick_card (option) -> informs the option of card picked by the user
 
 
 
@@ -14,4 +15,7 @@ opponent_name (name) -> informs the opponent name
 opponent_left -> informs that opponent left waiting room ¿game?
 show_game -> tells to show the game window
 turn_change -> informs that turns changed
+stat_update (stat, new_value) -> indicates the new value of stat
 cards_info -> shows the cards drawn
+update_board (board) -> indicates an update on the board
+show_legal_moves (moves, eats) -> inform the cells with valid moves

@@ -1,22 +1,65 @@
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QGridLayout, QWidget, QLabel
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QPixmap
+
+
+class Cell(QLabel):
+
+    def __init__(self, sg_clicked: pyqtSignal, coords: tuple, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.clicked: pyqtSignal = sg_clicked
+        self.clicking: bool = False
+        self.coords: tuple = coords
+        self.create_indicator()
+
+    def create_indicator(self) -> None:
+        self.indicator = QLabel()
+        self.indicator.setFixedSize(30, 30)
+        self.indicator.setStyleSheet('QLabel {background-color: cyan;}')
+        box = QGridLayout()
+        box.addWidget(self.indicator)
+        self.setLayout(box)
+        self.indicator.hide()
+
+    def mousePressEvent(self, ev) -> None:
+        self.clicking = True
+        return super().mousePressEvent(ev)
+
+    def mouseReleaseEvent(self, ev) -> None:
+        if self.clicking and self.underMouse():
+            self.clicking = False
+            self.clicked.emit(self.coords)
+        return super().mouseReleaseEvent(ev)
+
 
 class Board(QWidget):
     
-    def __init__(self):
+    def __init__(self, im_barbarian: str, im_horserider: str, im_spearman: str,
+                 im_rattletrap: str, im_joker: str, im_hero: str,
+                 sg_cell_clicked: pyqtSignal) -> None:
         super().__init__()
-        self.initUI()
+        self.icons: dict[str, QPixmap] = {
+            'Barbarian': QPixmap(im_barbarian),
+            'Horserider': QPixmap(im_horserider),
+            'Spearman': QPixmap(im_spearman),
+            'RattleTrap': QPixmap(im_rattletrap),
+            'Joker': QPixmap(im_joker),
+            'Hero': QPixmap(im_hero)
+        }
+        self.initUI(sg_cell_clicked)
 
-    def initUI(self):
+    def initUI(self, sg_cell_clicked: pyqtSignal):
         grid: QGridLayout = QGridLayout()
         grid.setSpacing(0)
         grid.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.cells: list[list[QLabel]] = []
+        self.cells: list[list[Cell]] = []
 
         for i in range(9):
             row = []
             for j in range(9):
-                cell = QLabel()
+                cell = Cell(sg_cell_clicked, (j, i))
+                cell.setScaledContents(True)
                 cell.setObjectName('Cell')
                 cell.setAlignment(Qt.AlignCenter)
                 # if (i + j) % 2 == 0:
@@ -26,6 +69,20 @@ class Board(QWidget):
             
         self.setLayout(grid)
         
+    def display(self, board: list) -> None:
+        for my_row, real_row in zip(self.cells, board):
+            for my_cell, real_piece in zip(my_row, real_row):
+                my_cell.indicator.hide()
+                if real_piece == 'X':
+                    my_cell.setPixmap(QPixmap())
+                    continue
+                my_cell.setPixmap(self.icons[real_piece])
+
+    def show_legal_moves(self, options: list) -> None:
+        for option in options:
+            x, y = option
+            self.cells[y][x].indicator.show()
+
     def resizeEvent(self, event):
         size = min(self.width(), self.height())
         for row in self.cells:

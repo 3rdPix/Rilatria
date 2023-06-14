@@ -150,6 +150,42 @@ class Cmd:
     @staticmethod
     def show_game() -> dict:
         return {'cmd': 'show_game'}
+    
+    @staticmethod
+    def stat_update(stat: str, new_val: int, mine: bool) -> dict:
+        order = {
+            'cmd': 'stat_update',
+            'stat': stat,
+            'new_val': new_val,
+            'mine': mine
+        }
+        return order
+    
+    @staticmethod
+    def show_cards(cards: list[dict]) -> dict:
+        order = {
+            'cmd': 'show_cards',
+            'cards': cards
+        }
+        return order
+    
+    @staticmethod
+    def update_board(board: list) -> dict:
+        order = {
+            'cmd': 'update_board',
+            'board': board
+        }
+        return order
+    
+    
+    @staticmethod
+    def show_legal_moves(moves: list, eats: list) -> dict:
+        order = {
+            'cmd': 'show_legal_moves',
+            'moves': moves,
+            'eats': eats
+        }
+        return order
 
     @staticmethod
     def opponent_left() -> dict:

@@ -23,3 +23,13 @@ QLabel#Cell {
 QLabel#Cell:hover {
 	background-color: #b3ffff;
 }
+QFrame#CardSet {
+	border: 2px solid orange;
+}
+QFrame#CardSet:hover {
+	border: 2px solid cyan;
+}
+QLabel#CardText {
+	font-size: 15px;
+	color: white;
+}

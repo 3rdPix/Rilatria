@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QObject, pyqtSignal, QThread
-from bk.entities import Player, Board, Piece, Deck
 from bk.logics import Router, Requests
 from bk.game_sg import Signals
 from socket import socket as wire, AF_INET, SOCK_STREAM
@@ -51,18 +50,49 @@ class ClientLogic(Signals):
             case 'opponent_name': self.receive_opponent_name(cmd)
             case 'show_game': self.show_game()
             case 'turn_change': self.change_turn()
+            case 'stat_update': self.receive_stat_update(cmd)
+            case 'show_cards': self.receive_cards(cmd)
+            case 'update_board': self.update_board(cmd)
+            case 'show_legal_moves': self.update_legal_moves(cmd)
 
     def starken(self, object) -> None:
         if not self.connected: return
         msg = Router.codificar_bytes(object)
         self.t_socket.sendall(msg)
 
+
+    """
+    INSTRUCTIONS
+    """
+    def receive_stat_update(self, details: dict) -> None:
+        self.ant_update_stat.emit(details)
+
+    def receive_cards(self, cmd: dict) -> None:
+        cards = cmd.get('cards')
+        options = list()
+        for card in cards:
+            first = list()
+            if card['health'] != 0: first.append(('health', card['health']))
+            if card['honor'] != 0: first.append(('honor', card['honor']))
+            if card['luck'] != 0: first.append(('luck', card['luck']))
+            if card['coins'] != 0: first.append(('coins', card['coins']))
+            while len(first) < 2:
+                first.append(('placeholder', '0'))
+            options.extend(first)
+        self.ant_card_options.emit(options)
+
+    def update_legal_moves(self, cmd: dict) -> None:
+        moves = cmd.get('moves')
+        eats = cmd.get('eats')
+        print(moves, eats)
+        whole = moves + eats
+        self.ant_update_legal_moves.emit(whole)
+
     """
     Login
     """
     def request_login(self, user: str) -> None:
         if not self.connected: self.create_connection()
-        print(user)
         self.starken(Requests.user_name(user))
         self.username = user
 
@@ -70,11 +100,8 @@ class ClientLogic(Signals):
         if not instruction.get('valid'):
             self.ant_login_error.emit(instruction.get('errors'))
             return
-        print('1')
         self.ant_go_waiting.emit(self.username)
-        print('2')
         self.ant_me_name.emit(self.username)
-        print('3')
         pass
 
     def request_finish_turn(self) -> None:
@@ -89,6 +116,16 @@ class ClientLogic(Signals):
     def show_game(self) -> None:
         self.ant_show_game.emit()
 
+    def update_board(self, cmd: dict) -> None:
+        self.ant_update_board.emit(cmd.get('board'))
+
     def change_turn(self) -> None:
         self.my_turn = not self.my_turn
         self.ant_my_turn.emit(self.my_turn)
+
+    def card_picked(self, option: int) -> None:
+        self.starken(Requests.pick_card(option))
+
+    def cell_clicked(self, cell: tuple) -> None:
+        print('cell_clicked', cell)
+        self.starken(Requests.cell_clicked(cell))
