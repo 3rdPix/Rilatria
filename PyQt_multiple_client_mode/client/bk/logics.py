@@ -88,3 +88,11 @@ class Requests:
             'cell': list(cell)
         }
         return order
+    
+    @staticmethod
+    def buying(name: str) -> dict:
+        order = {
+            'request': 'buy',
+            'piece': name
+        }
+        return order

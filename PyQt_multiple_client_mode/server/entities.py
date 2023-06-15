@@ -52,6 +52,8 @@ class Player:
         self._moved_hero: bool = False
         self._moved_piece: bool = False
         self._is_moving: bool = False
+        self.is_buying: bool = False
+        self.piece_being_bought: str|None = None
 
     """
     PUBLIC
@@ -389,6 +391,13 @@ class Board:
         eated.owner.health -= 2
         del eated
         self.selected_piece = None
+
+    def new_piece(self, x: int, y: int, who: Player) -> None:
+        piece = who.piece_being_bought
+        self.cells[y][x].place_piece(
+            self.init_piece[piece](
+            belongs_to=who,
+            parameters=self.piece_parameters[piece]))
 
     def __str__(self) -> str:
         for row in self.cells:

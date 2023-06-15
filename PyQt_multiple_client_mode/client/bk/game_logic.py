@@ -107,6 +107,9 @@ class ClientLogic(Signals):
     def request_finish_turn(self) -> None:
         self.starken(Requests.finish_turn())
 
+    def request_buying(self, name: str) -> None:
+        self.starken(Requests.buying(name))
+
     """
     Game
     """

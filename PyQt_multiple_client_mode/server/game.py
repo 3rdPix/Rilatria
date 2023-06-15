@@ -61,6 +61,7 @@ class Game:
             case 'finish_turn': self.finish_turn()
             case 'pick_card': self.pick_card(request)
             case 'cell_clicked': self.user_clicked_a_cell(request)
+            case 'buy': self.user_trying_to_buy(request)
 
     def finish_turn(self) -> None:
         if self._current_stage == 'pick_card' \
@@ -77,12 +78,8 @@ class Game:
         self.controller.acquire()
         if self._current_stage != 'pick_card': return
         option = request.get('option')
-        if self.player_1.my_turn:
-            self.player_1.apply_card(self._current_card_options[option])
-            self.update_p1_stats()
-        elif self.player_2.my_turn:
-            self.player_2.apply_card(self._current_card_options[option])
-            self.update_p2_stats()
+        who = self.players[current_thread().name]
+        if who.my_turn: who.apply_card(self._current_card_options[option])
         self.controller.release()
         self.movement_stage()
 
@@ -94,32 +91,48 @@ class Game:
         q3 = self.board.is_whos(x, y) is who_clicked        # es tu pieza
         q4 = True if self.board.selected_piece else False   # seleccionada
         q5 = self.board.try_legal_move(x, y)                # legal
+        q6 = who_clicked.is_buying                          # buying
 
-        print('cell_clicked:', who_clicked, q1, q2, q3, q4, q5)
-        match [q1, q2, q3, q4, q5]:
+        print('cell_clicked:', who_clicked, q1, q2, q3, q4, q5, q6)
+        match [q1, q2, q3, q4, q5, q6]:
             
+            # user trying to clean board
             case [False, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
+            
+            # user tries to see legal moves of other player (not allowed)
             case [False, True, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
+            
+            # show legal moves (not your turn)
             case [False, True, True, *q]:
                 self.prepare_legal_moves(x, y)
 
-            case [True, False, True|False, False, *q]:
+            # user trying to clear board
+            case [True, False, True|False, False, True|False, False]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
-            case [True, False, True|False, True, False]:
+
+            # user buying a piece
+            case [True, False, True|False, False, True|False, True]:
+                self.user_buys(x, y)
+
+            # failed to move legally (when moving to empty cell)
+            case [True, False, True|False, True, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
             
             # move to empty cell
-            case [True, False, True|False, True, True]:
+            case [True, False, True|False, True, True, *q]:
                 self.move_to_empty_cell(x, y)
             
             # show legal moves
             case [True, True, True, *q]:
                 self.prepare_legal_moves(x, y)
             
+            # user tries to see legal moves of other player (not allowed)
             case [True, True, False, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
+            
+            # failed to move legally (when eating)
             case [True, True, False, True, False]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
             
@@ -127,7 +140,21 @@ class Game:
             case [True, True, False, True, True]:
                 self.move_to_occupied_cell(x, y)
 
+    def user_trying_to_buy(self, request: dict) -> None:
+        # get the cost of the piece that is being bought
+        piece: str = request.get('piece')
+        price: int = self.board.prices.get(piece)
         
+        # check if player has enough money
+        who = self.players[current_thread().name]
+        if who.coins >= price:
+            # has enough
+            who.is_buying = True
+            who.piece_being_bought = piece
+        else:
+            # does not have enough
+            who.is_buying = False
+            who.piece_being_bought = None
 
 
     """
@@ -246,6 +273,16 @@ class Game:
 
     def move_to_occupied_cell(self, x: int, y: int) -> None:
         self.board.eat_to(x, y)
+        self.update_board()
+        self.update_p1_stats()
+        self.update_p2_stats()
+
+    def user_buys(self, x: int, y: int) -> None:
+        who = self.players[current_thread().name]
+        who.coins -= self.board.prices.get(who.piece_being_bought)
+        self.board.new_piece(x, y, who)
+        who.is_buying = False
+        who.piece_being_bought = None
         self.update_board()
         self.update_p1_stats()
         self.update_p2_stats()

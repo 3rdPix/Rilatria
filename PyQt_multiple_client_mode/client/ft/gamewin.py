@@ -11,6 +11,7 @@ class GameWindow(QWidget):
 
     sg_card_picked = pyqtSignal(int)
     sg_cell_clicked = pyqtSignal(tuple)
+    sg_item_clicked_to_buy = pyqtSignal(str)
 
     def __init__(self, lang: int, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -190,15 +191,20 @@ class GameWindow(QWidget):
         store.setMinimumSize(510, 130)
 
         self.item1 = ItemSet(pt.pic_pawn, self.text.get('item1'), pt.pic_item_back,
-                       pt.pic_item_hover, pt.pic_item_click)
+                       pt.pic_item_hover, pt.pic_item_click,
+                       self.sg_item_clicked_to_buy, name_id='Barbarian')
         self.item2 = ItemSet(pt.pic_horse, self.text.get('item2'), pt.pic_item_back,
-                        pt.pic_item_hover, pt.pic_item_click)
+                        pt.pic_item_hover, pt.pic_item_click,
+                        self.sg_item_clicked_to_buy, name_id='Horserider')
         self.item3 = ItemSet(pt.pic_bishop, self.text.get('item3'), pt.pic_item_back,
-                         pt.pic_item_hover, pt.pic_item_click)
+                         pt.pic_item_hover, pt.pic_item_click,
+                         self.sg_item_clicked_to_buy, name_id='Spearman')
         self.item4 = ItemSet(pt.pic_rook, self.text.get('item4'), pt.pic_item_back,
-                       pt.pic_item_hover, pt.pic_item_click)
+                       pt.pic_item_hover, pt.pic_item_click,
+                       self.sg_item_clicked_to_buy, name_id='RattleTrap')
         self.item5 = ItemSet(pt.pic_joker, self.text.get('item5'), pt.pic_item_back,
-                        pt.pic_item_hover, pt.pic_item_click)
+                        pt.pic_item_hover, pt.pic_item_click,
+                        self.sg_item_clicked_to_buy, name_id='Joker')
 
         # total layout
         int_lay = QHBoxLayout()

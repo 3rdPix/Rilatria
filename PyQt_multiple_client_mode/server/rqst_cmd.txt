@@ -3,6 +3,7 @@ Requests by end_point (rqst):
 user_name (name) -> asks verifying of a username
 finish_turn -> informs that user finished turn
 pick_card (option) -> informs the option of card picked by the user
+buy (name) -> asks to buy piece indicated in name
 
 
 

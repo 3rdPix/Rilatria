@@ -89,6 +89,9 @@ class Rilatria(QApplication):
 
         self.t_client.ant_card_options.connect(
             self.ft_game.receive_card)
+        
+        self.ft_game.sg_item_clicked_to_buy.connect(
+            self.t_client.request_buying)
 
     def update_default_lang(self, lang: int) -> None:
         self.lang = lang
