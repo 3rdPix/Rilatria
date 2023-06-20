@@ -324,8 +324,6 @@ class Board:
         # step 4: verify if target moving cells are available
         legal_moves = self.find_free_cells(valid_moves)
         legal_eats = self.find_legal_eats(valid_eats, p)
-        self.possible_moves = legal_moves + legal_eats
-        self.selected_piece = (x, y)
         return legal_moves, legal_eats
 
     def find_free_cells(self, options: list) -> list:
@@ -371,6 +369,15 @@ class Board:
 
     def try_legal_move(self, x: int, y: int) -> bool:
         return True if [x, y] in self.possible_moves else False
+
+    def get_selected_piece(self) -> str:
+        if not self.selected_piece: return ''
+        x, y = self.selected_piece
+        cell: Cell = self.cells[y][x]
+        piece: Piece = cell.get_piece()
+        return piece.name
+    
+
 
     def move_to(self, x: int, y: int) -> None:
         if not self.selected_piece: return
