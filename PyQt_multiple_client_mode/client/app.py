@@ -84,6 +84,9 @@ class Rilatria(QApplication):
         self.t_client.ant_update_legal_moves.connect(
             self.ft_game.update_legal_moves)
         
+        self.t_client.ant_update_legal_eats.connect(
+            self.ft_game.update_legal_eats)
+        
         self.ft_game.sg_cell_clicked.connect(
             self.t_client.cell_clicked)
 

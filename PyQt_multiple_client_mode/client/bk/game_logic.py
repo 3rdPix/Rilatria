@@ -84,9 +84,9 @@ class ClientLogic(Signals):
     def update_legal_moves(self, cmd: dict) -> None:
         moves = cmd.get('moves')
         eats = cmd.get('eats')
-        print(moves, eats)
         whole = moves + eats
-        self.ant_update_legal_moves.emit(whole)
+        self.ant_update_legal_moves.emit(moves)
+        self.ant_update_legal_eats.emit(eats)
 
     """
     Login

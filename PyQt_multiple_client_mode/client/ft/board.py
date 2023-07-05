@@ -16,7 +16,6 @@ class Cell(QLabel):
     def create_indicator(self) -> None:
         self.indicator = QLabel()
         self.indicator.setFixedSize(30, 30)
-        self.indicator.setStyleSheet('QLabel {background-color: cyan;}')
         box = QGridLayout()
         box.addWidget(self.indicator)
         self.setLayout(box)
@@ -81,6 +80,13 @@ class Board(QWidget):
     def show_legal_moves(self, options: list) -> None:
         for option in options:
             x, y = option
+            self.cells[y][x].setStyleSheet('QLabel {background-color: cyan;}')
+            self.cells[y][x].indicator.show()
+
+    def show_legal_eats(self, options: list) -> None:
+        for option in options:
+            x, y = option
+            self.cells[y][x].setStyleSheet('QLabel {background-color: purple;}')
             self.cells[y][x].indicator.show()
 
     def resizeEvent(self, event):

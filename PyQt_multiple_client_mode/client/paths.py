@@ -3,15 +3,15 @@ from os.path import join
 """
 Images
 """
-pic_heart: str = join('ft', 'art', 'player_stats', 'health.png')
-pic_clover: str = join('ft', 'art', 'player_stats', 'luck.png')
-pic_shield: str = join('ft', 'art', 'player_stats', 'honor.png')
-pic_coin: str = join('ft', 'art', 'player_stats', 'coins.png')
-pic_pawn: str = join('ft', 'art', 'pieces', 'barbarian.png')
-pic_horse: str = join('ft', 'art', 'pieces', 'horserider.png')
+pic_heart: str = join('ft', 'art', 'player_stats', 'health_icon.jpeg')
+pic_clover: str = join('ft', 'art', 'player_stats', 'luck_icon.jpeg')
+pic_shield: str = join('ft', 'art', 'player_stats', 'honor_icon.jpeg')
+pic_coin: str = join('ft', 'art', 'player_stats', 'coins_icon.jpeg')
+pic_pawn: str = join('ft', 'art', 'pieces', 'barbarian_icon.jpeg')
+pic_horse: str = join('ft', 'art', 'pieces', 'horserider_icon.jpeg')
 pic_bishop: str = join('ft', 'art', 'pieces', 'spearman.png')
-pic_rook: str = join('ft', 'art', 'pieces', 'rattletrap.png')
-pic_joker: str = join('ft', 'art', 'pieces', 'assasin.png')
+pic_rook: str = join('ft', 'art', 'pieces', 'siege_icon.jpeg')
+pic_joker: str = join('ft', 'art', 'pieces', 'joker_icon.jpeg')
 pic_stat_frame: str = join('ft', 'art', 'stat_back.png')
 
 pic_p1: str = join('ft', 'art', 'pieces', 'hero.png')
@@ -19,7 +19,7 @@ pic_p2: str = join('ft', 'art', 'p2.png')
 
 pic_welwin_back: str = join('ft', 'art', 'block_background.jpg')
 pic_lobby_back: str = join('ft', 'art', 'lobby_back.jpg')
-pic_gamewin_back: str = join('ft', 'art', 'game_background2.jpg')
+pic_gamewin_back: str = join('ft', 'art', 'background_2.jpeg')
 
 pic_item_back: str = join('ft', 'art', 'bg_items_shop.png')
 pic_item_hover: str = join('ft', 'art', 'bg_items_shop_on.jpg')
