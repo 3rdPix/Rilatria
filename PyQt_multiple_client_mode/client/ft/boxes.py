@@ -42,11 +42,14 @@ class StatSet(QVBoxLayout):
 class ItemSet(QLabel):
 
     def __init__(self, image_path: str, name: str, background_path: str,
-                 hover_path: str, click_back_path: str, **kwargs) -> None:
+                 hover_path: str, click_back_path: str,
+                 sg_clicked_to_buy: pyqtSignal, name_id: str, **kwargs) -> None:
         super().__init__(**kwargs)
         self.non_hover_back = QPixmap(background_path)
         self.hover_back = QPixmap(hover_path)
         self.click_back = QPixmap(click_back_path)
+        self.clicked_to_buy: pyqtSignal = sg_clicked_to_buy
+        self.name_id: str = name_id
         self.setPixmap(self.non_hover_back)
         self.setScaledContents(True)
         self.set_content(image_path, name)
@@ -94,6 +97,7 @@ class ItemSet(QLabel):
 
     def mouseReleaseEvent(self, event) -> None:
         self.setPixmap(self.hover_back)
+        if self.underMouse(): self.clicked_to_buy.emit(self.name_id)
         return super().mouseReleaseEvent(event)
     
 class TurnSet(QLabel):

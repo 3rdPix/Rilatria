@@ -89,7 +89,6 @@ class Server:
 
     def opponent_name(self, users: tuple[User]) -> None:
         user_1, user_2 = users
-        print('OPPONENT NAME FUNCTION', users)
         Router.starken(Cmd.opponent_name(user_2.user_name), user_1)
         Router.starken(Cmd.opponent_name(user_1.user_name), user_2)
 

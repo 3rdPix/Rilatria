@@ -84,9 +84,9 @@ class ClientLogic(Signals):
     def update_legal_moves(self, cmd: dict) -> None:
         moves = cmd.get('moves')
         eats = cmd.get('eats')
-        print(moves, eats)
         whole = moves + eats
-        self.ant_update_legal_moves.emit(whole)
+        self.ant_update_legal_moves.emit(moves)
+        self.ant_update_legal_eats.emit(eats)
 
     """
     Login
@@ -106,6 +106,9 @@ class ClientLogic(Signals):
 
     def request_finish_turn(self) -> None:
         self.starken(Requests.finish_turn())
+
+    def request_buying(self, name: str) -> None:
+        self.starken(Requests.buying(name))
 
     """
     Game

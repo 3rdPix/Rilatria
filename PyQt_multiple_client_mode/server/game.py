@@ -27,6 +27,8 @@ class Game:
 
         # related to movement and cell_clicking
         self.piece_to_move_picked: bool = False
+        self._hero_moved: bool = False
+        self._normal_moved: bool = False
 
 
     """
@@ -61,6 +63,7 @@ class Game:
             case 'finish_turn': self.finish_turn()
             case 'pick_card': self.pick_card(request)
             case 'cell_clicked': self.user_clicked_a_cell(request)
+            case 'buy': self.user_trying_to_buy(request)
 
     def finish_turn(self) -> None:
         if self._current_stage == 'pick_card' \
@@ -75,15 +78,19 @@ class Game:
 
     def pick_card(self, request: dict) -> None:
         self.controller.acquire()
-        if self._current_stage != 'pick_card': return
+        if self._current_stage != 'pick_card':
+            self.controller.release()
+            return
+        who = self.players[current_thread().name]
+        if not who.my_turn:
+            self.controller.release()
+            return
         option = request.get('option')
-        if self.player_1.my_turn:
-            self.player_1.apply_card(self._current_card_options[option])
-            self.update_p1_stats()
-        elif self.player_2.my_turn:
-            self.player_2.apply_card(self._current_card_options[option])
-            self.update_p2_stats()
+        who.apply_card(self._current_card_options[option])
+        self._card_chosen = True
         self.controller.release()
+        self.update_p1_stats()
+        self.update_p2_stats()
         self.movement_stage()
 
     def user_clicked_a_cell(self, request: dict) -> None:
@@ -94,40 +101,74 @@ class Game:
         q3 = self.board.is_whos(x, y) is who_clicked        # es tu pieza
         q4 = True if self.board.selected_piece else False   # seleccionada
         q5 = self.board.try_legal_move(x, y)                # legal
+        q6 = who_clicked.is_buying                          # buying
 
-        print('cell_clicked:', who_clicked, q1, q2, q3, q4, q5)
-        match [q1, q2, q3, q4, q5]:
+        match [q1, q2, q3, q4, q5, q6]:
             
+            # user trying to clean board
             case [False, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
+            
+            # user tries to see legal moves of other player (not allowed)
             case [False, True, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
+            
+            # show legal moves (not your turn)
             case [False, True, True, *q]:
                 self.prepare_legal_moves(x, y)
 
-            case [True, False, True|False, False, *q]:
+            # user trying to clear board
+            case [True, False, True|False, False, True|False, False]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
-            case [True, False, True|False, True, False]:
+
+            # user buying a piece
+            case [True, False, True|False, False, True|False, True]:
+                self.user_buys(x, y)
+
+            # failed to move legally (when moving to empty cell)
+            case [True, False, True|False, True, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
             
             # move to empty cell
-            case [True, False, True|False, True, True]:
+            case [True, False, True|False, True, True, *q]:
                 self.move_to_empty_cell(x, y)
             
             # show legal moves
             case [True, True, True, *q]:
                 self.prepare_legal_moves(x, y)
             
+            # user tries to see legal moves of other player (not allowed)
             case [True, True, False, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
-            case [True, True, False, True, False]:
+            
+            # failed to move legally (when eating)
+            case [True, True, False, True, False, *q]:
                 self.clear_p_board(who_clicked, self.board.get_sendable())
             
             # eat a piece
-            case [True, True, False, True, True]:
+            case [True, True, False, True, True, *q]:
                 self.move_to_occupied_cell(x, y)
 
+    def user_trying_to_buy(self, request: dict) -> None:
+        if not self._current_stage == 'movement': return
         
+        print('User trying to buy in a proper stage, checking currency...')
+        # get the cost of the piece that is being bought
+        piece: str = request.get('piece')
+        price: int = self.board.prices.get(piece)
+        
+        # check if player has enough money
+        who = self.players[current_thread().name]
+        if who.coins >= price:
+            # has enough
+            print('Player', who, 'has enough coins to buy', piece)
+            who.is_buying = True
+            who.piece_being_bought = piece
+        else:
+            # does not have enough
+            print('Player', who, 'does not have enough coins to buy', piece)
+            who.is_buying = False
+            who.piece_being_bought = None
 
 
     """
@@ -207,11 +248,16 @@ class Game:
         self.set_linsteners()
 
     def new_turn(self) -> None:
+        print('----NEW TURN----')
+        self._hero_moved = False
+        self._normal_moved = False
+        self._card_chosen = False
         self.turn_change()
         self.reserva_stage()
         self.cards_stage()
 
     def reserva_stage(self) -> None:
+        print('ENTERING RESERVA STAGE')
         self._current_stage = 'reserva'
         if self.player_1.my_turn:
             self.player_1.chain_effects()
@@ -221,12 +267,14 @@ class Game:
             self.update_p2_stats()
 
     def cards_stage(self) -> None:
+        print('ENTERING CARDS STAGE')
         self._current_stage = 'pick_card'
         self._current_card_options = list()
         for _ in range(3): self._current_card_options.append(Deck.draw())
         self.show_cards()
         
     def movement_stage(self) -> None:
+        print('ENTERING MOVEMENT STAGE')
         self._current_stage = 'movement'
         self.update_board()
 
@@ -239,13 +287,44 @@ class Game:
         # then update the new legal moves for the selected piece
         self.clear_p_board(who, self.board.get_sendable())
         self.show_legal_moves(legal_moves, legal_eats, who)
+        if self._current_stage == 'movement':
+            self.board.possible_moves = legal_moves + legal_eats
+            self.board.selected_piece = (x, y)
 
     def move_to_empty_cell(self, x: int, y: int) -> None:
+        if not self._current_stage == 'movement': return
+        piece = self.board.get_selected_piece()
+        if piece == 'Hero' and self._hero_moved: return
+        elif piece != 'Hero' and self._normal_moved: return
         self.board.move_to(x, y)
         self.update_board()
+        if piece == 'Hero': self._hero_moved = True
+        elif piece != 'Hero': self._normal_moved = True
 
     def move_to_occupied_cell(self, x: int, y: int) -> None:
+        print('User trying to move to occupied cell')
+        if not self._current_stage == 'movement': return
+        print('It is the correct stage of the turn')
+        piece = self.board.get_selected_piece()
+        print('Piece trying to be moved is', piece)
+        print('Have we moved anything? Hero:', self._hero_moved, 'Normal:', self._normal_moved)
+        if piece == 'Hero' and self._hero_moved: return
+        elif piece != 'Hero' and self._normal_moved: return
         self.board.eat_to(x, y)
+        print('Board moved the piece ')
+        self.update_board()
+        self.update_p1_stats()
+        self.update_p2_stats()
+        if piece == 'Hero': self._hero_moved = True
+        elif piece != 'Hero': self._normal_moved = True
+
+    def user_buys(self, x: int, y: int) -> None:
+        print('User passed every checkpoint and now summons piece in', x, y)
+        who = self.players[current_thread().name]
+        who.coins -= self.board.prices.get(who.piece_being_bought)
+        self.board.new_piece(x, y, who)
+        who.is_buying = False
+        who.piece_being_bought = None
         self.update_board()
         self.update_p1_stats()
         self.update_p2_stats()

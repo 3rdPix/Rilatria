@@ -52,6 +52,8 @@ class Player:
         self._moved_hero: bool = False
         self._moved_piece: bool = False
         self._is_moving: bool = False
+        self.is_buying: bool = False
+        self.piece_being_bought: str|None = None
 
     """
     PUBLIC
@@ -322,8 +324,6 @@ class Board:
         # step 4: verify if target moving cells are available
         legal_moves = self.find_free_cells(valid_moves)
         legal_eats = self.find_legal_eats(valid_eats, p)
-        self.possible_moves = legal_moves + legal_eats
-        self.selected_piece = (x, y)
         return legal_moves, legal_eats
 
     def find_free_cells(self, options: list) -> list:
@@ -370,6 +370,15 @@ class Board:
     def try_legal_move(self, x: int, y: int) -> bool:
         return True if [x, y] in self.possible_moves else False
 
+    def get_selected_piece(self) -> str:
+        if not self.selected_piece: return ''
+        x, y = self.selected_piece
+        cell: Cell = self.cells[y][x]
+        piece: Piece = cell.get_piece()
+        return piece.name
+    
+
+
     def move_to(self, x: int, y: int) -> None:
         if not self.selected_piece: return
         old_x, old_y = self.selected_piece
@@ -389,6 +398,13 @@ class Board:
         eated.owner.health -= 2
         del eated
         self.selected_piece = None
+
+    def new_piece(self, x: int, y: int, who: Player) -> None:
+        piece = who.piece_being_bought
+        self.cells[y][x].place_piece(
+            self.init_piece[piece](
+            belongs_to=who,
+            parameters=self.piece_parameters[piece]))
 
     def __str__(self) -> str:
         for row in self.cells:
